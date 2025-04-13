@@ -1,0 +1,19 @@
+.header {
+  font-size: var(--text-2xl);
+  background-color: var(--modal-header);
+  box-shadow: var(--shadow);
+  color: white;
+
+  padding: 0 20px;
+  border-radius: var(--border-rad) var(--border-rad) 0px 0px;
+  height: 3rem;
+  width: calc(100% - 40px);
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  z-index: 0;
+}

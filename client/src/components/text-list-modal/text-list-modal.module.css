@@ -1,0 +1,22 @@
+.text_list_modal {
+  border: var(--border);
+  box-shadow: var(--shadow);
+  background-color: var(--modal-bg);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: flex-end;
+
+  gap: 20px;
+  padding: 20px 15px;
+  width: calc(100vw - 30px);
+  max-width: 370px;
+  height: 510px;
+
+  border-radius: 0 0 0 10px;
+  border-right: none;
+  border-top: none;
+  overflow-y: auto;
+}

@@ -1,0 +1,22 @@
+.text_list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  
+  max-width: 400px;
+  width: 100vw;
+  z-index: 2;
+
+  @media (max-width: 1550px) {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+  }
+}
+
+.hide_icon {
+  position: absolute;
+  left: 10px;
+}

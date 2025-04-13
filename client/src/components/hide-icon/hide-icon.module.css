@@ -1,0 +1,35 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes spin_reverse {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hide_icon {
+  padding: 4px 10px;
+  box-sizing: border-box;
+  border-radius: var(--border-rad);
+  user-select: none;
+  cursor: pointer;
+}
+
+.hide_icon:hover {
+  animation: spin_reverse 0.6s;
+}
+
+.hide_icon:not(:hover) {
+  animation: spin 0.6s;
+}
