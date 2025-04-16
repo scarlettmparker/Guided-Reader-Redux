@@ -1,24 +1,37 @@
-import { Component, createSignal, For } from "solid-js";
+import { Component, createEffect, createSignal, For } from "solid-js";
 import { createResource } from "solid-js";
-import { TitlesController } from "~/utils/api";
+import { TitlesController, TextController } from "~/utils/api";
 import { TextContext } from "~/contexts/text-context";
+import { TextType } from "~/types";
+import { shouldFetchText } from "~/utils/text";
 
+import { LoadingState, ErrorState } from "~/components/state";
 import ReaderModal from "~/components/reader-modal";
 import TextList from "~/components/text-list";
 import TextModal from "~/components/text-modal";
-import styles from './reader.module.css';
+import TextListItem from "~/components/text-list-item";
 
-import { LoadingState, ErrorState } from "~/components/state";
-import { TextListContent } from "../text-list-modal";
+import styles from './reader.module.css';
 
 const Reader: Component = () => {
   const [selectedTextId, setSelectedTextId] = createSignal<number | null>(null);
+  const [hoveredTextId, setHoveredTextId] = createSignal<number | null>(null);
+  const [selectedTextData, setSelectedTextData] = createSignal<TextType | undefined>(undefined);
+  
   const [titles] = createResource(() => TitlesController.getTitles());
-
-  // Extract the message from the titles response
-  const titleData = () => (
-    titles() && titles()!.message
+  const [text] = createResource(hoveredTextId, (id) => 
+    shouldFetchText(id) ? TextController.getText(id, "GR") : undefined
   );
+
+  // Update selected text data when text resource changes and IDs match
+  createEffect(() => {
+    const currentText = text()?.message[0] as TextType | undefined;
+    if (hoveredTextId() === selectedTextId() && currentText) {
+      setSelectedTextData(currentText);
+    }
+  });
+
+  const titleData = () => titles()?.message;
 
   return (
     <TextContext.Provider value={{ setSelectedTextId }}>
@@ -29,15 +42,23 @@ const Reader: Component = () => {
           ) : titles.error ? (
             <ErrorState>Error: {titles.error.message}</ErrorState>
           ) : titleData() ? (
-            <TextListContent
-              texts={titleData()!}
-            />
+            <For each={titleData()}>
+              {(textListItem) => (
+                <TextListItem 
+                  onClick={() => setSelectedTextId(textListItem.id)}
+                  onMouseOver={() => setHoveredTextId(textListItem.id)}
+                >
+                  {textListItem.title}
+                </TextListItem>
+              )}
+            </For>
           ) : null}
         </TextList>
         <ReaderModal>
           <TextModal
-          selectedTextId={selectedTextId()}
-        />
+            selectedTextId={selectedTextId()}
+            text={selectedTextData()}
+          />
         </ReaderModal>
       </div>
     </TextContext.Provider>

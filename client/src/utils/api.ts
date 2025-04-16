@@ -64,3 +64,15 @@ export const TitlesController = {
       `/api/titles?sort=${sort}&page=${page}&page_size=${pageSize}`
     ),
 };
+
+export const TextController = {
+  getText: (
+    textObjectId: number,
+    language: string = "GR",
+    type: string = "text"
+  ) => (
+    getFetch<{ message: string }>(
+      `/api/text?text_object_id=${textObjectId}&language=${language}&type=${type}`
+    )
+  ),
+};

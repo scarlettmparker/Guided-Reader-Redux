@@ -1,5 +1,5 @@
 import { Component, JSX } from 'solid-js';
-import { TextListModal } from '~/components/text-list-modal';
+import TextListModal from '~/components/text-list-modal';
 import Header from '~/components/header';
 import HideIcon from '~/components/hide-icon';
 import styles from './text-list.module.css';

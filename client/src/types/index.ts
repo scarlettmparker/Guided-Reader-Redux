@@ -9,3 +9,11 @@ export type TextListItemType = {
   level: string;
   title: string;
 };
+
+export type TextType = {
+  audio: string | null;
+  id: number;
+  language: string;
+  text: string;
+  text_object_id: number;
+};
