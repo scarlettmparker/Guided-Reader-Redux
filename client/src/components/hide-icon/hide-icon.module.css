@@ -19,9 +19,10 @@
 }
 
 .hide_icon {
+  font-size: var(--text-lg);
+  border-radius: var(--border-rad);
   padding: 4px 10px;
   box-sizing: border-box;
-  border-radius: var(--border-rad);
   user-select: none;
   cursor: pointer;
 }

@@ -1,0 +1,33 @@
+.text_list_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  width: 90%;
+
+  font-size: var(--text-lg);
+  color: var(--text);
+  background-color: #fff;
+  border-radius: var(--border-rad);
+  box-shadow: var(--shadow);
+
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.text_list_item:hover {
+  background-color: var(--hover-bg);
+  color: var(--link);
+  transform: scale(1.01);
+}
+
+.text_list_item:active {
+  transform: scale(0.99);
+  box-shadow: 0 0 0 2px var(--link) inset;
+}
+
+.text_list_item:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--link-hover);
+}
