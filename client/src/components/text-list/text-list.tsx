@@ -1,13 +1,11 @@
 import { Component, JSX } from 'solid-js';
-import { createMockTextList } from "~/utils/text-list";
+import { TextListModal } from '~/components/text-list-modal';
 import Header from '~/components/header';
 import HideIcon from '~/components/hide-icon';
-import TextListModal from '~/components/text-list-modal';
-
 import styles from './text-list.module.css';
 
 interface TextListProps {
-  children: (mockData: ReturnType<typeof createMockTextList>) => JSX.Element;
+  children: JSX.Element;
 }
 
 const TextList: Component<TextListProps> = (props) => {

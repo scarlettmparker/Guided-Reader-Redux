@@ -7,6 +7,13 @@ export default defineConfig({
   plugins: [solidPlugin()],
   server: {
     port: 3000,
+    proxy: {
+      '/api': {
+        target: 'https://readerapi.scarlettparker.co.uk',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
   build: {
     target: 'esnext',
