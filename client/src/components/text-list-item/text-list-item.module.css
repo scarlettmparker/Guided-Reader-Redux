@@ -24,10 +24,20 @@
 
 .text_list_item:active {
   transform: scale(0.99);
-  box-shadow: 0 0 0 2px var(--link) inset;
+  box-shadow: 0 0 0 1px var(--link) inset;
 }
 
 .text_list_item:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--link-hover);
+}
+
+.selected {
+  background-color: var(--text);
+  color: white;
+}
+
+.selected:hover {
+  background-color: var(--modal-dark-hover);
+  color: white;
 }

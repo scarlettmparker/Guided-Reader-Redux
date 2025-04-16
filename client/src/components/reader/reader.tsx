@@ -11,6 +11,7 @@ import TextModal from "~/components/text-modal";
 import TextListItem from "~/components/text-list-item";
 
 import styles from "./reader.module.css";
+import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
 
 const Reader: Component = () => {
   const [selectedTextId, setSelectedTextId] = createSignal<number | null>(null);
@@ -83,6 +84,7 @@ const Reader: Component = () => {
             <For each={titles()?.message}>
               {(item) => (
                 <TextListItem
+                  class={() => item.id === selectedTextId() ? textListItemStyles.selected : ""}
                   onClick={() => setSelectedTextId(item.id)}
                   onMouseOver={() => setHoveredTextId(item.id)}
                 >

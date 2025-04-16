@@ -9,9 +9,6 @@ interface TextModalProps {
 }
 
 const TextModal: Component<TextModalProps> = (props) => {
-  createEffect(() => {
-    console.log(props.text);
-  })
   return (
     <div class={styles.text_modal}>
       {props.selectedTextId !== null ? (
