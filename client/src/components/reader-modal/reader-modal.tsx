@@ -1,13 +1,18 @@
-import { Component } from "solid-js";
-import TextModal from "~/components/text-modal";
+import { Component, JSX } from "solid-js";
 import Header from "~/components/header";
 import styles from "./reader-modal.module.css";
 
-const ReaderModal: Component = () => {
+interface ReaderModalProps {
+  children: JSX.Element;
+};
+
+const ReaderModal: Component<ReaderModalProps> = (props) => {
+  const { children } = props;
+  
   return (
     <div class={styles.reader_modal}>
       <Header />
-      <TextModal />
+      {children}
     </div>
   );
 };

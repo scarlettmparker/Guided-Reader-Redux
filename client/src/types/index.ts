@@ -1,4 +1,4 @@
-export type TextListItem = {
+export type TextListItemType = {
   id: number;
   title: string;
 };

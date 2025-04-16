@@ -1,12 +1,16 @@
-import { Component } from 'solid-js';
-
+import { Component, JSX } from 'solid-js';
+import { createMockTextList } from "~/utils/text-list";
 import Header from '~/components/header';
 import HideIcon from '~/components/hide-icon';
 import TextListModal from '~/components/text-list-modal';
 
 import styles from './text-list.module.css';
 
-const TextList: Component = () => {
+interface TextListProps {
+  children: (mockData: ReturnType<typeof createMockTextList>) => JSX.Element;
+}
+
+const TextList: Component<TextListProps> = (props) => {
   return (
     <div class={styles.text_list}>
       <Header>
@@ -15,7 +19,7 @@ const TextList: Component = () => {
           Texts (κείμενα)
         </span>
       </Header>
-      <TextListModal />
+      <TextListModal>{props.children}</TextListModal>
     </div>
   );
 };

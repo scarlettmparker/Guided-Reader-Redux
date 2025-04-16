@@ -1,4 +1,4 @@
-import { TextListItem } from "~/types";
+import { TextListItemType } from "~/types";
 
 /**
  * Helper function to create mock text list data of N size
@@ -6,7 +6,7 @@ import { TextListItem } from "~/types";
  * @param size Size of the mock data array
  * @return List of mock data
  */
-export function createMockTextList(size: number): TextListItem[] {
+export function createMockTextList(size: number): TextListItemType[] {
   let mockData = [];
   let i;
 
