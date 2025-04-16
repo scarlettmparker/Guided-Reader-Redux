@@ -1,34 +1,68 @@
-## Usage
+# [Guided Reader](https://reader.scarlettparker.co.uk)
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+## Overview
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+**Guided Reader** is a highly performant and responsive annotation tool that allows users to explore and annotate texts from τράπεζα κειμένων ([Greek Text Bank](https://www.greek-language.gr/certification/dbs/teachers/index.html)) in a style similar to Genius.com.
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+The application is built with:
+- **SolidJS** for the front-end.
+- **C++** for the back-end.
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+## Features
 
-## Available Scripts
+- **Text annotation**: Annotate texts interactively, with a word reference button that uses the [wordreference](https://www.npmjs.com/package/wordreference) npm package to display Greek-to-English dictionary entries for words.
+- **Authentication via Discord OAuth2**.
+- **Integration with PostgreSQL and Redis** for data and session management.
 
-In the project directory, you can run:
+---
 
-### `npm run dev` or `npm start`
+## Getting Started
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Front-End Setup
 
-The page will reload if you make edits.<br>
+#### Prerequisites
+- Node.js
 
-### `npm run build`
+#### Running the Front-End
+1. Navigate to the front-end directory:
+   ```bash
+   cd client
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. To build for production:
+   ```bash
+   npm run build
+   ```
+5. Serve the production build:
+   ```bash
+   npm run serve
+   ```
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+## License
 
-## Deployment
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+---
+
+## Additional Information
+- Discord Guild ID for the Greek Learning Server: **350234668680871946**
+- Discord API Endpoints:
+  - **User Info:** `/api/users/@me`
+  - **User Guilds:** `/api/users/@me/guilds`
+  - **Token:** `/api/oauth2/token`
+- Discord OAuth2 Permissions:
+  - identify, guilds, guilds.members.read
+- Discord Redirect URI: **client/auth_discord**
+- Discord Link Redirect URI: **client/auth_discord?verify=true**
+
+For more details, visit the website at [reader.scarlettparker.co.uk](https://reader.scarlettparker.co.uk).
+
