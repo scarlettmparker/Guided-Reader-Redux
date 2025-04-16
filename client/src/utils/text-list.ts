@@ -2,7 +2,7 @@ import { TextListItemMockType } from "~/types";
 
 /**
  * Helper function to create mock text list data of N size
- * 
+ *
  * @param size Size of the mock data array
  * @return List of mock data
  */
@@ -13,7 +13,7 @@ export function createMockTextList(size: number): TextListItemMockType[] {
   for (i = 0; i < size; i++) {
     mockData[i] = {
       id: i,
-      title: "Text " + i
+      title: "Text " + i,
     };
   }
 

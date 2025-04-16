@@ -1,1 +1,1 @@
-export { default } from './hide-icon';
+export { default } from "./hide-icon";

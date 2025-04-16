@@ -1,5 +1,5 @@
 import { Component, createEffect } from "solid-js";
-import styles from './text-modal.module.css';
+import styles from "./text-modal.module.css";
 import { LoadingState } from "../state";
 import { TextType } from "~/types";
 
@@ -21,7 +21,7 @@ const TextModal: Component<TextModalProps> = (props) => {
         <span>Select a text to begin</span>
       )}
     </div>
-  )
+  );
 };
 
 export default TextModal;

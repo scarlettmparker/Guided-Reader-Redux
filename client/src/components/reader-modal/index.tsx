@@ -1,1 +1,1 @@
-export { default } from './reader-modal';
+export { default } from "./reader-modal";

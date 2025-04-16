@@ -4,11 +4,11 @@ import styles from "./reader-modal.module.css";
 
 interface ReaderModalProps {
   children: JSX.Element;
-};
+}
 
 const ReaderModal: Component<ReaderModalProps> = (props) => {
   const { children } = props;
-  
+
   return (
     <div class={styles.reader_modal}>
       <Header />

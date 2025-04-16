@@ -1,5 +1,5 @@
 import { Component, JSX } from "solid-js";
-import styles from './header.module.css';
+import styles from "./header.module.css";
 
 interface HeaderProps {
   children?: JSX.Element;
@@ -8,11 +8,7 @@ interface HeaderProps {
 const Header: Component<HeaderProps> = (props) => {
   const { children } = props;
 
-  return (
-    <div class={styles.header}>
-      { children ? ( children ) : '' }
-    </div>
-  );
-}
+  return <div class={styles.header}>{children ? children : ""}</div>;
+};
 
 export default Header;

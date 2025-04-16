@@ -1,1 +1,1 @@
-export { default } from './text-list-modal';
+export { default } from "./text-list-modal";

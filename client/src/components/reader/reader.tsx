@@ -1,4 +1,10 @@
-import { Component, createEffect, createSignal, For, createResource } from "solid-js";
+import {
+  Component,
+  createEffect,
+  createSignal,
+  For,
+  createResource,
+} from "solid-js";
 import { TitlesController, TextController } from "~/utils/api";
 import { TextContext } from "~/contexts/text-context";
 import { TextType } from "~/types";
@@ -16,7 +22,9 @@ import textListItemStyles from "~/components/text-list-item/text-list-item.modul
 const Reader: Component = () => {
   const [selectedTextId, setSelectedTextId] = createSignal<number | null>(null);
   const [hoveredTextId, setHoveredTextId] = createSignal<number | null>(null);
-  const [selectedTextData, setSelectedTextData] = createSignal<TextType | undefined>();
+  const [selectedTextData, setSelectedTextData] = createSignal<
+    TextType | undefined
+  >();
 
   const [titles] = createResource(() => TitlesController.getTitles());
 
@@ -37,13 +45,13 @@ const Reader: Component = () => {
     // Don't fetch hover text if it's the same as selected text
     if (id === selectedTextId()) {
       return undefined;
-    } 
+    }
 
     const cached = getFromCache(id);
     if (cached) {
       return { message: [cached] };
     }
-    
+
     if (shouldFetchText(id)) {
       const text = await cacheText(id);
       return text ? { message: [text] } : undefined;
@@ -51,7 +59,6 @@ const Reader: Component = () => {
 
     return undefined;
   });
-
 
   // Handle selection changes and fetch text if needed
   createEffect(() => {
@@ -84,7 +91,11 @@ const Reader: Component = () => {
             <For each={titles()?.message}>
               {(item) => (
                 <TextListItem
-                  class={() => item.id === selectedTextId() ? textListItemStyles.selected : ""}
+                  class={() =>
+                    item.id === selectedTextId()
+                      ? textListItemStyles.selected
+                      : ""
+                  }
                   onClick={() => setSelectedTextId(item.id)}
                   onMouseOver={() => setHoveredTextId(item.id)}
                 >
@@ -94,9 +105,11 @@ const Reader: Component = () => {
             </For>
           )}
         </TextList>
-
         <ReaderModal>
-          <TextModal selectedTextId={selectedTextId()} text={selectedTextData()} />
+          <TextModal
+            selectedTextId={selectedTextId()}
+            text={selectedTextData()}
+          />
         </ReaderModal>
       </div>
     </TextContext.Provider>

@@ -6,11 +6,7 @@ interface TextListModalProps {
 }
 
 const TextListModal: Component<TextListModalProps> = (props) => {
-  return (
-    <div class={styles.text_list_modal}>
-      {props.children}    
-    </div>
-  );
+  return <div class={styles.text_list_modal}>{props.children}</div>;
 };
 
 export default TextListModal;

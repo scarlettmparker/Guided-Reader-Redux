@@ -14,5 +14,5 @@ render(
       </Router>
     </MetaProvider>
   ),
-  document.getElementById("root")!
+  document.getElementById("root")!,
 );

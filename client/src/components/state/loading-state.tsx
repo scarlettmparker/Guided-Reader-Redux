@@ -6,7 +6,7 @@ import styles from "./styles/loading-state.module.css";
 interface LoadingStateProps {
   class?: string;
   children: JSX.Element | string;
-};
+}
 
 const LoadingState: Component<LoadingStateProps> = (props) => {
   const { class: class_ = "", children } = props;

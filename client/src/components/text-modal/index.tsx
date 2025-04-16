@@ -1,1 +1,1 @@
-export { default } from './text-modal';
+export { default } from "./text-modal";

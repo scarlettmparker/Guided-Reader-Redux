@@ -1,1 +1,1 @@
-export { default } from './text-list';
+export { default } from "./text-list";
