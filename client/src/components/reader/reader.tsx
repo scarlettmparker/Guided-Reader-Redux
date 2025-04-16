@@ -1,9 +1,8 @@
-import { Component, createEffect, createSignal, For } from "solid-js";
-import { createResource } from "solid-js";
+import { Component, createEffect, createSignal, For, createResource } from "solid-js";
 import { TitlesController, TextController } from "~/utils/api";
 import { TextContext } from "~/contexts/text-context";
 import { TextType } from "~/types";
-import { shouldFetchText } from "~/utils/text";
+import { shouldFetchText, getFromCache, addToCache } from "~/utils/text";
 
 import { LoadingState, ErrorState } from "~/components/state";
 import ReaderModal from "~/components/reader-modal";
@@ -11,27 +10,66 @@ import TextList from "~/components/text-list";
 import TextModal from "~/components/text-modal";
 import TextListItem from "~/components/text-list-item";
 
-import styles from './reader.module.css';
+import styles from "./reader.module.css";
 
 const Reader: Component = () => {
   const [selectedTextId, setSelectedTextId] = createSignal<number | null>(null);
   const [hoveredTextId, setHoveredTextId] = createSignal<number | null>(null);
-  const [selectedTextData, setSelectedTextData] = createSignal<TextType | undefined>(undefined);
-  
-  const [titles] = createResource(() => TitlesController.getTitles());
-  const [text] = createResource(hoveredTextId, (id) => 
-    shouldFetchText(id) ? TextController.getText(id, "GR") : undefined
-  );
+  const [selectedTextData, setSelectedTextData] = createSignal<TextType | undefined>();
 
-  // Update selected text data when text resource changes and IDs match
-  createEffect(() => {
-    const currentText = text()?.message[0] as TextType | undefined;
-    if (hoveredTextId() === selectedTextId() && currentText) {
-      setSelectedTextData(currentText);
+  const [titles] = createResource(() => TitlesController.getTitles());
+
+  const cacheText = async (id: number) => {
+    const result = await TextController.getText(id, "GR");
+    const textData = result?.message[0] as unknown as TextType;
+
+    if (textData) {
+      addToCache(id, textData);
     }
+    return textData;
+  };
+
+  // createResource is used only to trigger the fetch when hoveredTextId changes
+  // and for other side effects that are useful (I don't want to explain just trust me)
+
+  const [] = createResource(hoveredTextId, async (id) => {
+    // Don't fetch hover text if it's the same as selected text
+    if (id === selectedTextId()) {
+      return undefined;
+    } 
+
+    const cached = getFromCache(id);
+    if (cached) {
+      return { message: [cached] };
+    }
+    
+    if (shouldFetchText(id)) {
+      const text = await cacheText(id);
+      return text ? { message: [text] } : undefined;
+    }
+
+    return undefined;
   });
 
-  const titleData = () => titles()?.message;
+
+  // Handle selection changes and fetch text if needed
+  createEffect(() => {
+    const id = selectedTextId();
+    if (id === null) {
+      return setSelectedTextData(undefined);
+    }
+
+    const cached = getFromCache(id);
+    if (cached) {
+      setSelectedTextData(cached);
+    } else if (shouldFetchText(id)) {
+      cacheText(id).then((text) => {
+        if (text && id === selectedTextId()) {
+          setSelectedTextData(text);
+        }
+      });
+    }
+  });
 
   return (
     <TextContext.Provider value={{ setSelectedTextId }}>
@@ -41,24 +79,22 @@ const Reader: Component = () => {
             <LoadingState>Loading...</LoadingState>
           ) : titles.error ? (
             <ErrorState>Error: {titles.error.message}</ErrorState>
-          ) : titleData() ? (
-            <For each={titleData()}>
-              {(textListItem) => (
-                <TextListItem 
-                  onClick={() => setSelectedTextId(textListItem.id)}
-                  onMouseOver={() => setHoveredTextId(textListItem.id)}
+          ) : (
+            <For each={titles()?.message}>
+              {(item) => (
+                <TextListItem
+                  onClick={() => setSelectedTextId(item.id)}
+                  onMouseOver={() => setHoveredTextId(item.id)}
                 >
-                  {textListItem.title}
+                  {item.title}
                 </TextListItem>
               )}
             </For>
-          ) : null}
+          )}
         </TextList>
+
         <ReaderModal>
-          <TextModal
-            selectedTextId={selectedTextId()}
-            text={selectedTextData()}
-          />
+          <TextModal selectedTextId={selectedTextId()} text={selectedTextData()} />
         </ReaderModal>
       </div>
     </TextContext.Provider>
