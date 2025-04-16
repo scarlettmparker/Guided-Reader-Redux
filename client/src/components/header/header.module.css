@@ -1,6 +1,6 @@
 .header {
   font-size: var(--text-2xl);
-  background-color: var(--modal-header);
+  background-color: var(--modal-dark);
   box-shadow: var(--shadow);
   color: white;
 

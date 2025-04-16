@@ -4,9 +4,9 @@
   flex-direction: column;
   gap: 1rem;
 
-  border: var(--border);
+  border: var(--modal-border);
   box-shadow: var(--shadow);
-  background-color: var(--modal-bg);
+  background-color: var(--modal);
 
   width: calc(100vw - 70px);
   max-width: 680px;

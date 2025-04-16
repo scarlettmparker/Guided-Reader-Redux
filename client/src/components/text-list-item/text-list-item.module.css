@@ -17,7 +17,7 @@
 }
 
 .text_list_item:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--modal-hover);
   color: var(--link);
   transform: scale(1.01);
 }

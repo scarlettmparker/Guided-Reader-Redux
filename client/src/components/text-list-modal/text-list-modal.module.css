@@ -1,7 +1,7 @@
 .text_list_modal {
-  border: var(--border);
+  border: var(--modal-border);
   box-shadow: var(--shadow);
-  background-color: var(--modal-bg);
+  background-color: var(--modal);
 
   position: relative;
   display: flex;
