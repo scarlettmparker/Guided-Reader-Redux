@@ -3,7 +3,7 @@
   flex-direction: column;
   width: fit-content;
   gap: 4px;
-  padding: 20px 10px;
+  padding: 20px 15px;
 
   background-color: var(--modal);
   border-radius: var(--border-rad);
@@ -20,7 +20,7 @@
 
 .hide_icon {
   position: absolute;
-  left: 10px;
+  left: 15px;
   font-size: var(--text-md);
 }
 
