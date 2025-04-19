@@ -1,0 +1,7 @@
+.like_button {
+  cursor: pointer;
+}
+
+.like_button:hover {
+  background-color: var(--modal-hover);
+}

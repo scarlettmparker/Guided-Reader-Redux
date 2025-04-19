@@ -1,4 +1,34 @@
+.annotation_header {
+  align-items: center;
+}
+
+.username {
+  padding: 4px 8px;
+  user-select: none;
+  cursor: pointer;
+
+  border-radius: var(--border-rad-sm);
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.username:hover {
+  color: var(--link);
+  background-color: var(--modal-hover);
+}
+
 .annotation_date {
   font-weight: var(--normal);
   color: var(--text-grey);
+}
+
+.annotation_footer {
+  align-items: center;
+}
+
+.like_button {
+  margin-right: 6px;
+}
+
+.likes_count {
+  margin-right: 12px;
 }

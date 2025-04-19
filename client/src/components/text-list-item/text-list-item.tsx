@@ -9,7 +9,7 @@ interface TextListItemProps {
 }
 
 const TextListItem: Component<TextListItemProps> = (props) => {
-  const { class: class_ = () => "", children, onClick, onMouseOver } = props;
+  const { class: class_ = () => "", onClick, onMouseOver } = props;
 
   return (
     <div

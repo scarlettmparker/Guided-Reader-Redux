@@ -1,6 +1,6 @@
 import { Component } from "solid-js";
 import { LoadingState } from "../state";
-import { TextType } from "~/types";
+import { Text as TextType } from "~/types";
 import { renderAnnotatedText } from "~/utils/annotation";
 import styles from "./text-modal.module.css";
 

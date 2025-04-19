@@ -1,4 +1,4 @@
-import { TextType } from "~/types";
+import { Text as TextType } from "~/types";
 import { TextController } from "./api";
 
 type TextCache = Map<string, { data: TextType; lastAccessed: number }>;

@@ -9,7 +9,7 @@ import {
 
 import { TitlesController } from "~/utils/api";
 import { TextContext } from "~/contexts/text-context";
-import { TextType } from "~/types";
+import { Text as TextType } from "~/types";
 import { handleAnnotationClick } from "~/utils/annotation";
 import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 
@@ -57,6 +57,8 @@ const Reader: Component = () => {
   // Handle selection changes and fetch text if needed
   createEffect(() => {
     const id = selectedTextId();
+    setSelectedAnnotation(null);
+
     if (id === null) {
       return setSelectedTextData(undefined);
     }

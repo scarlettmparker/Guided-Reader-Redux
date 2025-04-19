@@ -1,16 +1,16 @@
-export type TextListItemMockType = {
+export type TextListItemMock = {
   id: number;
   title: string;
 };
 
-export type TextListItemType = {
+export type TextListItem = {
   group_id: number;
   id: number;
   level: string;
   title: string;
 };
 
-export type TextType = {
+export type Text = {
   annotations: Annotation[];
   audio: string | null;
   id: number;

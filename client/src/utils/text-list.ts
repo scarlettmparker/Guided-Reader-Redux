@@ -1,4 +1,4 @@
-import { TextListItemMockType } from "~/types";
+import { TextListItemMock as TextListItemMockType } from "~/types";
 
 /**
  * Helper function to create mock text list data of N size

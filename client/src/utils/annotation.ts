@@ -1,4 +1,4 @@
-import { Annotation, TextType } from "~/types";
+import { Annotation, Text as TextType } from "~/types";
 import styles from "~/components/text-modal/text-modal.module.css";
 
 /**
