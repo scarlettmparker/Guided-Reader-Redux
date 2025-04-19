@@ -2,6 +2,35 @@ import { Annotation, Text as TextType } from "~/types";
 import styles from "~/components/text-modal/text-modal.module.css";
 
 /**
+ * Calculate the time ago from a given timestamp to human readable format.
+ *
+ * @param timestamp Timestamp to calculate time ago from.
+ * @returns String representing the time ago.
+ */
+export function unixToDate(timestamp: number): string {
+  const seconds = Math.floor(Date.now() / 1000 - timestamp);
+
+  if (seconds >= 31536000) {
+    const years = Math.floor(seconds / 31536000);
+    return `${years} year${years > 1 ? "s" : ""} ago`;
+  } else if (seconds >= 2592000) {
+    const months = Math.floor(seconds / 2592000);
+    return `${months} month${months > 1 ? "s" : ""} ago`;
+  } else if (seconds >= 86400) {
+    const days = Math.floor(seconds / 86400);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  } else if (seconds >= 3600) {
+    const hours = Math.floor(seconds / 3600);
+    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  } else if (seconds >= 60) {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  }
+
+  return `${seconds} second${seconds > 1 ? "s" : ""} ago` || "just now";
+}
+
+/**
  * Helper function for rendering HTML content.
  * Sanitizes text by removing HTML tags and replacing non-breaking spaces with regular spaces.
  *

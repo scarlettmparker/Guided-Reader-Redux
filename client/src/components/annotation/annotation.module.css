@@ -1,6 +1,13 @@
+.annotation {
+  max-width: 420px;
+  border: none;
+  box-shadow: none;
+}
+
 .annotation_header {
   align-items: center;
 }
+
 
 .username {
   padding: 4px 8px;
@@ -26,9 +33,9 @@
 }
 
 .like_button {
-  margin-right: 6px;
+  margin-right: 8px;
 }
 
 .likes_count {
-  margin-right: 12px;
+  margin-right: 16px;
 }

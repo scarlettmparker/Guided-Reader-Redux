@@ -45,6 +45,12 @@ body {
   color: var(--text);
 }
 
+a {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
 h1,
 h2,
 h3,
