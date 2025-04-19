@@ -7,9 +7,14 @@ import {
   onMount,
 } from "solid-js";
 
-import { TitlesController } from "~/utils/api";
+import {
+  Text as TextType,
+  Annotation as AnnotationType,
+  AnnotationResponse,
+} from "~/types";
+
 import { TextContext } from "~/contexts/text-context";
-import { Text as TextType } from "~/types";
+import { AnnotationController, TitlesController } from "~/utils/api";
 import { handleAnnotationClick } from "~/utils/annotation";
 import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 
@@ -19,9 +24,10 @@ import TextList from "~/components/text-list";
 import TextModal from "~/components/text-modal";
 import TextListItem from "~/components/text-list-item";
 import Annotation from "~/components/annotation";
+import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
+import AnnotationList from "~/components/annotation-list";
 
 import styles from "./reader.module.css";
-import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
 
 const Reader: Component = () => {
   const [selectedTextId, setSelectedTextId] = createSignal<number | null>(null);
@@ -29,7 +35,10 @@ const Reader: Component = () => {
   const [selectedTextData, setSelectedTextData] = createSignal<
     TextType | undefined
   >();
-  const [selectedAnnotation, setSelectedAnnotation] = createSignal<number | null>(null);
+
+  const [annotations, setAnnotations] = createSignal<AnnotationResponse[]>([]);
+  const [selectedAnnotation, setSelectedAnnotation] =
+    createSignal<AnnotationType | null>(null);
   const [titles] = createResource(() => TitlesController.getTitles());
 
   // createResource is used only to trigger the fetch when hoveredTextId changes
@@ -75,11 +84,34 @@ const Reader: Component = () => {
     }
   });
 
-  onMount(() => {
-    document.addEventListener("click", (e) => handleAnnotationClick(e, setSelectedAnnotation));
-    return () => {
-      document.removeEventListener("click", (e) => handleAnnotationClick(e, setSelectedAnnotation));
+  // Handle loading annotations upon click
+  createEffect(() => {
+    const annotation = selectedAnnotation();
+    if (annotation) {
+      AnnotationController.getAnnotations(
+        annotation.text_id,
+        annotation.start,
+        annotation.end,
+      ).then((data) => {
+        setAnnotations(data?.message || []);
+      });
+    } else {
+      setAnnotations([]);
     }
+  });
+
+  onMount(() => {
+    const handleClick = (e: MouseEvent) => {
+      handleAnnotationClick(
+        e,
+        setSelectedAnnotation,
+        selectedTextData()?.annotations || [],
+      );
+    };
+    document.addEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
   });
 
   return (
@@ -115,8 +147,12 @@ const Reader: Component = () => {
           />
         </ReaderModal>
       </div>
-      {selectedAnnotation() !== null && (
-        <Annotation />
+      {selectedAnnotation() !== null && annotations().length > 0 && (
+        <AnnotationList class={styles.annotation_list}>
+          <For each={annotations()}>
+            {(annotation) => <Annotation annotation={annotation} />}
+          </For>
+        </AnnotationList>
       )}
     </TextContext.Provider>
   );

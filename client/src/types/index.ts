@@ -19,9 +19,26 @@ export type Text = {
   text_object_id: number;
 };
 
+export type Author = {
+  avatar: string;
+  discord_id: string;
+  discord_status: boolean;
+  id: number;
+  username: string;
+};
+
 export type Annotation = {
   id: number;
   start: number;
   end: number;
   text_id: number;
+};
+
+export type AnnotationResponse = {
+  annotation: Annotation;
+  author: Author;
+  created_at: number;
+  description: string;
+  dislikes: number;
+  likes: number;
 };

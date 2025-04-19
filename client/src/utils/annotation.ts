@@ -173,11 +173,13 @@ export function renderAnnotatedText(text: TextType): string {
  */
 export const handleAnnotationClick = (
   event: MouseEvent,
-  setSelectedAnnotation: (annotation: number) => void,
+  setSelectedAnnotation: (annotation: Annotation | null) => void,
+  annotations: Annotation[],
 ) => {
   const target = event.target as HTMLElement;
   if (target.id.startsWith("annotated-text-")) {
     const annotationId = parseInt(target.id.split("-")[2], 10);
-    setSelectedAnnotation(annotationId);
+    const annotation = annotations.find((a) => a.id === annotationId);
+    setSelectedAnnotation(annotation || null);
   }
 };

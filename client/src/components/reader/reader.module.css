@@ -13,3 +13,12 @@
     right: 0;
   }
 }
+
+.annotation_list {
+  position: absolute;
+  height: 50%;
+  right: 0;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+}

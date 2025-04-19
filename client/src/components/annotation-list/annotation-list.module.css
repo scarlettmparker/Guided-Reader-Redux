@@ -1,0 +1,13 @@
+.annotation_list {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  gap: 10px;
+  padding: 20px;
+  overflow-y: scroll;
+
+  background-color: var(--modal);
+  border-radius: var(--border-rad-sm);
+  border: var(--modal-border);
+  box-shadow: var(--shadow);
+}

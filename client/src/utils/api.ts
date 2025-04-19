@@ -1,4 +1,4 @@
-import { TextListItem as TextListItemType } from "~/types";
+import { AnnotationResponse, TextListItem as TextListItemType } from "~/types";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
@@ -72,5 +72,13 @@ export const TextController = {
   ) =>
     getFetch<{ message: string }>(
       `/api/text?text_object_id=${textObjectId}&language=${language}&type=${type}`,
+    ),
+};
+
+export const AnnotationController = {
+  getAnnotations: (textObjectId: number, start: number, end: number) =>
+    // TODO: annotation endpoint needs text object ID and language, not text ID alone
+    getFetch<{ message: AnnotationResponse[] }>(
+      `/api/annotation?text_id=${textObjectId}&start=${start}&end=${end}`,
     ),
 };

@@ -1,34 +1,30 @@
+import { Component } from "solid-js";
 import { Card, CardBody, CardFooter, CardHeader } from "~/components/card";
 import LikeButton from "~/components/like-button";
-import { Annotation as AnnotationType } from "~/types";
-import styles from './annotation.module.css';
+import { AnnotationResponse } from "~/types";
+import styles from "./annotation.module.css";
 
 interface AnnotationProps {
-  annotation: AnnotationType;
+  annotation: AnnotationResponse;
 }
 
-const Annotation = () => {
+const Annotation: Component<AnnotationProps> = (props) => {
+  const { annotation } = props;
+  const author = annotation.author;
+
   return (
     <Card>
-      <CardHeader
-        class={styles.annotation_header}
-      >
-        <span class={styles.username}>username</span>
-        <span class={styles.annotation_date}>
-          1 month ago
-        </span>
+      <CardHeader class={styles.annotation_header}>
+        <span class={styles.username}>{author.username}</span>
+        <span class={styles.annotation_date}>1 month ago</span>
       </CardHeader>
-      <CardBody>
-        It's common in Greek for names to be preceded by a definite article
-      </CardBody>
+      <CardBody>{annotation.description}</CardBody>
       <CardFooter class={styles.annotation_footer}>
-        <LikeButton
-          class={styles.like_button}
-        />
-        <span class={styles.likes_count}>0</span>
-        <LikeButton
-          reverse={true}
-        />
+        <LikeButton class={styles.like_button} />
+        <span class={styles.likes_count}>
+          {annotation.likes - annotation.dislikes}
+        </span>
+        <LikeButton reverse={true} />
       </CardFooter>
     </Card>
   );
