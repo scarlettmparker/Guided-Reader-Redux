@@ -1,0 +1,33 @@
+.card {
+  background-color: var(--modal);
+  border-radius: var(--border-rad-sm);
+  border: var(--modal-border);
+  box-shadow: var(--shadow);
+
+  padding: 10px 15px;
+  width: 100%;
+  max-width: 320px;
+  height: fit-content;
+}
+
+.card_header {
+  font-weight: var(--bold);
+  font-size: var(--text-lg);
+  display: flex;
+  gap: 10px;
+}
+
+.card_body {
+  margin: 5px 0;
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.card_footer {
+  display: flex;
+  gap: 10px;
+}

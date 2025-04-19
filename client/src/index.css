@@ -3,6 +3,7 @@
 :root {
   /* text colors */
   --text: #080808;
+  --text-grey: #606060;
   --link: #cf3a5f;
   --link-hover: #7c1031;
   --underline: rgba(80, 27, 40, 0.6);
@@ -28,7 +29,12 @@
   --text-xl: 17px;
   --text-2xl: 19px;
 
+  --normal: 400;
+  --bold: 600;
+
   /* border radius */
+  --border-rad-xs: 4px;
+  --border-rad-sm: 8px;
   --border-rad: 15px;
 }
 

@@ -4,11 +4,13 @@ import {
   createSignal,
   For,
   createResource,
+  onMount,
 } from "solid-js";
 
 import { TitlesController } from "~/utils/api";
 import { TextContext } from "~/contexts/text-context";
 import { TextType } from "~/types";
+import { handleAnnotationClick } from "~/utils/annotation";
 import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 
 import { LoadingState, ErrorState } from "~/components/state";
@@ -16,6 +18,7 @@ import ReaderModal from "~/components/reader-modal";
 import TextList from "~/components/text-list";
 import TextModal from "~/components/text-modal";
 import TextListItem from "~/components/text-list-item";
+import Annotation from "~/components/annotation";
 
 import styles from "./reader.module.css";
 import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
@@ -26,7 +29,7 @@ const Reader: Component = () => {
   const [selectedTextData, setSelectedTextData] = createSignal<
     TextType | undefined
   >();
-
+  const [selectedAnnotation, setSelectedAnnotation] = createSignal<number | null>(null);
   const [titles] = createResource(() => TitlesController.getTitles());
 
   // createResource is used only to trigger the fetch when hoveredTextId changes
@@ -70,6 +73,13 @@ const Reader: Component = () => {
     }
   });
 
+  onMount(() => {
+    document.addEventListener("click", (e) => handleAnnotationClick(e, setSelectedAnnotation));
+    return () => {
+      document.removeEventListener("click", (e) => handleAnnotationClick(e, setSelectedAnnotation));
+    }
+  });
+
   return (
     <TextContext.Provider value={{ setSelectedTextId }}>
       <div class={styles.reader}>
@@ -103,6 +113,9 @@ const Reader: Component = () => {
           />
         </ReaderModal>
       </div>
+      {selectedAnnotation() !== null && (
+        <Annotation />
+      )}
     </TextContext.Provider>
   );
 };
