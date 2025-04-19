@@ -1,4 +1,5 @@
 import { TextType } from "~/types";
+import { TextController } from "./api";
 
 type TextCache = Map<string, { data: TextType; lastAccessed: number }>;
 
@@ -69,6 +70,28 @@ export function addToCache(
 
   pruneCache();
 }
+
+export const cacheText = async (id: number) => {
+  const result = await TextController.getText(id, "GR");
+  const textData = result?.message[0] as unknown as TextType;
+
+  // Remove overlapping annotations
+  if (textData.annotations) {
+    textData.annotations = Array.from(
+      new Map(
+        textData.annotations.map((annotation) => [
+          `${annotation.start}-${annotation.end}`,
+          annotation,
+        ]),
+      ).values(),
+    );
+  }
+
+  if (textData) {
+    addToCache(id, textData);
+  }
+  return textData;
+};
 
 /**
  * Check if a text needs to be fetched

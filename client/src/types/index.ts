@@ -11,9 +11,17 @@ export type TextListItemType = {
 };
 
 export type TextType = {
+  annotations: Annotation[];
   audio: string | null;
   id: number;
   language: string;
   text: string;
   text_object_id: number;
+};
+
+export type Annotation = {
+  id: number;
+  start: number;
+  end: number;
+  text_id: number;
 };

@@ -19,3 +19,18 @@
   border-top: none;
   touch-action: manipulation;
 }
+
+.annotated_text {
+  z-index: 1;
+  display: inline;
+  width: fit-content;
+  cursor: pointer;
+
+  padding: 1px 0px 2px 0px;
+  background-color: var(--annotated-text);
+}
+
+.annotated_text:hover,
+.annotated_text_selected {
+  background-color: var(--annotated-text-hover);
+}

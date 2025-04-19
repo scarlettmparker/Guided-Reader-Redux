@@ -1,7 +1,8 @@
-import { Component, createEffect } from "solid-js";
-import styles from "./text-modal.module.css";
+import { Component } from "solid-js";
 import { LoadingState } from "../state";
 import { TextType } from "~/types";
+import { renderAnnotatedText } from "~/utils/annotation";
+import styles from "./text-modal.module.css";
 
 interface TextModalProps {
   selectedTextId: number | null;
@@ -13,7 +14,7 @@ const TextModal: Component<TextModalProps> = (props) => {
     <div class={styles.text_modal}>
       {props.selectedTextId !== null ? (
         props.text ? (
-          <div innerHTML={props.text.text} />
+          <div innerHTML={renderAnnotatedText(props.text)} />
         ) : (
           <LoadingState>Loading text...</LoadingState>
         )

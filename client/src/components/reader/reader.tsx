@@ -5,10 +5,11 @@ import {
   For,
   createResource,
 } from "solid-js";
-import { TitlesController, TextController } from "~/utils/api";
+
+import { TitlesController } from "~/utils/api";
 import { TextContext } from "~/contexts/text-context";
 import { TextType } from "~/types";
-import { shouldFetchText, getFromCache, addToCache } from "~/utils/text";
+import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 
 import { LoadingState, ErrorState } from "~/components/state";
 import ReaderModal from "~/components/reader-modal";
@@ -27,16 +28,6 @@ const Reader: Component = () => {
   >();
 
   const [titles] = createResource(() => TitlesController.getTitles());
-
-  const cacheText = async (id: number) => {
-    const result = await TextController.getText(id, "GR");
-    const textData = result?.message[0] as unknown as TextType;
-
-    if (textData) {
-      addToCache(id, textData);
-    }
-    return textData;
-  };
 
   // createResource is used only to trigger the fetch when hoveredTextId changes
   // and for other side effects that are useful (I don't want to explain just trust me)
