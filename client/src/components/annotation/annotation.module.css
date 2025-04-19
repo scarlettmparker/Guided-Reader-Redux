@@ -6,6 +6,12 @@
 
 .annotation_header {
   align-items: center;
+  color: var(--text);
+}
+
+.annotation_link,
+.annotation_link:hover {
+  text-decoration: none;
 }
 
 .username {
@@ -25,6 +31,10 @@
 .annotation_date {
   font-weight: var(--normal);
   color: var(--text-grey);
+}
+
+.annotation_description p {
+  margin: 0;
 }
 
 .annotation_footer {

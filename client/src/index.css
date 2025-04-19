@@ -6,7 +6,8 @@
   --text-grey: #606060;
   --link: #cf3a5f;
   --link-hover: #7c1031;
-  --underline: rgba(80, 27, 40, 0.6);
+  --underline: underline dotted rgba(37, 37, 37, 0.4);
+  --underline-hover: underline dotted rgba(80, 27, 40, 0.6);
   --annotated-text: #f7cccc;
   --annotated-text-hover: #e09090;
 
@@ -28,6 +29,8 @@
   --text-lg: 15px;
   --text-xl: 17px;
   --text-2xl: 19px;
+  --text-3xl: 21px;
+  --text-4xl: 23px;
 
   --normal: 400;
   --bold: 600;
@@ -46,9 +49,14 @@ body {
 }
 
 a {
-  color: var(--text);
-  text-decoration: none;
+  color: var(--link);
+  text-decoration: var(--underline);
   transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: var(--underline-hover);
 }
 
 h1,
@@ -61,4 +69,28 @@ p,
 ul {
   margin-top: 0;
   margin-bottom: 10px;
+}
+
+h1 {
+  font-size: var(--text-4xl);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+}
+
+h4 {
+  font-size: var(--text-xl);
+}
+
+h5 {
+  font-size: var(--text-lg);
+}
+
+h6 {
+  font-size: var(--text-md);
 }
