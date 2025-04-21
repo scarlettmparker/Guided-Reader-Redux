@@ -1,12 +1,12 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import styles from "./text-list-modal.module.css";
 
 interface TextListModalProps {
-  children: JSX.Element;
+  children: React.ReactNode;
 }
 
-const TextListModal: Component<TextListModalProps> = (props) => {
-  return <div class={styles.text_list_modal}>{props.children}</div>;
+const TextListModal: React.FC<TextListModalProps> = ({ children }) => {
+  return <div className={styles.text_list_modal}>{children}</div>;
 };
 
 export default TextListModal;

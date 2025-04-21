@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, onMount } from "solid-js";
+import React, { useState, useEffect } from "react";
 import { Card, CardBody, CardFooter, CardHeader } from "~/components/card";
 import LikeButton from "~/components/like-button";
 import ProfilePicture from "~/components/profile-picture";
@@ -11,12 +11,12 @@ interface AnnotationProps {
   annotation: AnnotationResponse;
 }
 
-const Annotation: Component<AnnotationProps> = (props) => {
+const Annotation: React.FC<AnnotationProps> = (props) => {
   const { annotation } = props;
   const author = annotation.author;
-  const [markedDescription, setMarkedDescription] = createSignal<string>("");
+  const [markedDescription, setMarkedDescription] = useState<string>("");
 
-  onMount(() => {
+  useEffect(() => {
     const renderer = new marked.Renderer();
 
     // Add target="_blank" to all links to open in new tab
@@ -30,36 +30,39 @@ const Annotation: Component<AnnotationProps> = (props) => {
       breaks: true,
       renderer: renderer,
     });
-  });
+  }, []);
 
-  createEffect(async () => {
-    setMarkedDescription(await marked(annotation.description));
-  });
+  useEffect(() => {
+    const fetchMarkedDescription = async () => {
+      setMarkedDescription(await marked(annotation.description));
+    };
+    fetchMarkedDescription();
+  }, [annotation.description]);
 
   return (
-    <Card class={styles.annotation}>
-      <a href={`/user/${author.discord_id}`} class={styles.annotation_link}>
-        <CardHeader class={styles.annotation_header}>
+    <Card className={styles.annotation}>
+      <a href={`/user/${author.discord_id}`} className={styles.annotation_link}>
+        <CardHeader className={styles.annotation_header}>
           <ProfilePicture
             avatar={author.avatar}
             discord_id={author.discord_id}
-            class={styles.profile_picture}
+            className={styles.profile_picture}
           />
-          <span class={styles.username}>{author.username}</span>
-          <span class={styles.annotation_date}>
+          <span className={styles.username}>{author.username}</span>
+          <span className={styles.annotation_date}>
             {unixToDate(annotation.created_at)}
           </span>
         </CardHeader>
       </a>
       <CardBody>
         <div
-          class={styles.annotation_description}
-          innerHTML={markedDescription()}
+          className={styles.annotation_description}
+          dangerouslySetInnerHTML={{ __html: markedDescription }}
         />
       </CardBody>
-      <CardFooter class={styles.annotation_footer}>
-        <LikeButton class={styles.like_button} />
-        <span class={styles.likes_count}>
+      <CardFooter className={styles.annotation_footer}>
+        <LikeButton className={styles.like_button} />
+        <span className={styles.likes_count}>
           {annotation.likes - annotation.dislikes}
         </span>
         <LikeButton reverse={true} />

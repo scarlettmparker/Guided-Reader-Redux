@@ -1,12 +1,10 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 
 interface ErrorStateProps {
-  children: JSX.Element | string;
+  children: React.ReactNode;
 }
 
-const ErrorState: Component<ErrorStateProps> = (props) => {
-  const { children } = props;
-
+const ErrorState: React.FC<ErrorStateProps> = ({ children }) => {
   return <span>{children}</span>;
 };
 

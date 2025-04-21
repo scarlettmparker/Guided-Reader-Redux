@@ -1,17 +1,15 @@
-import { Component } from "solid-js";
+import React from "react";
 import styles from "./hide-icon.module.css";
 
 interface HideIconProps {
   reverse?: boolean;
-  class?: string;
+  className?: string;
   children?: string;
 }
 
-const HideIcon: Component<HideIconProps> = (props) => {
-  const { reverse, class: _class, children } = props;
-
+const HideIcon: React.FC<HideIconProps> = ({ reverse, className, children }) => {
   return (
-    <div class={`${styles.hide_icon} ${_class}`}>
+    <div className={`${styles.hide_icon} ${className}`}>
       {children || (reverse ? ">" : "<")}
     </div>
   );

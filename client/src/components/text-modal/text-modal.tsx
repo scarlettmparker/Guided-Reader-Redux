@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import React from "react";
 import { LoadingState } from "../state";
 import { Text as TextType } from "~/types";
 import { renderAnnotatedText } from "~/utils/annotation";
@@ -9,12 +9,12 @@ interface TextModalProps {
   text?: TextType;
 }
 
-const TextModal: Component<TextModalProps> = (props) => {
+const TextModal: React.FC<TextModalProps> = ({ selectedTextId, text }) => {
   return (
-    <div class={styles.text_modal}>
-      {props.selectedTextId !== null ? (
-        props.text ? (
-          <div innerHTML={renderAnnotatedText(props.text)} />
+    <div className={styles.text_modal}>
+      {selectedTextId !== null ? (
+        text ? (
+          <div dangerouslySetInnerHTML={{ __html: renderAnnotatedText(text) }} />
         ) : (
           <LoadingState>Loading text...</LoadingState>
         )

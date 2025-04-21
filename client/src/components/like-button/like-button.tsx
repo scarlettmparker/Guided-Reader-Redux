@@ -1,29 +1,28 @@
-import { Component, createSignal } from "solid-js";
+import React, { useState } from "react";
 import styles from "./like-button.module.css";
 
 interface LikeButtonProps {
-  class?: string;
+  className?: string;
   reverse?: boolean;
 }
 
-const LikeButton: Component<LikeButtonProps> = (props) => {
-  const [active, setActive] = createSignal(false);
-  const { class: class_ = "", reverse = false } = props;
+const LikeButton: React.FC<LikeButtonProps> = ({ className = "", reverse = false }) => {
+  const [active, setActive] = useState(false);
 
   const handleClick = () => {
-    setActive(!active());
+    setActive(!active);
     // Perform API call
   };
 
   return (
     <img
       src={
-        active()
+        active
           ? "/assets/annotation/icons/voted.png"
           : "/assets/annotation/icons/unvoted.png"
       }
       alt="Like"
-      class={`${styles.like_button} ${class_}`}
+      className={`${styles.like_button} ${className}`}
       style={{ transform: reverse ? "rotate(180deg)" : "none" }}
       width="20"
       height="20"

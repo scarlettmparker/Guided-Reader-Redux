@@ -1,25 +1,23 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import { Card, CardBody, CardHeader } from "~/components/card";
 import HideIcon from "~/components/hide-icon";
 import styles from "./annotation-list.module.css";
 
 interface AnnotationListProps {
-  class?: string;
-  children: JSX.Element;
+  className?: string;
+  children: React.ReactNode;
 }
 
-const AnnotationList: Component<AnnotationListProps> = (props) => {
-  const { class: class_ = "", children } = props;
-
+const AnnotationList: React.FC<AnnotationListProps> = ({ className = "", children }) => {
   return (
-    <Card class={`${styles.annotation_list} ${class_}`}>
-      <CardHeader class={styles.annotation_list_header}>
-        <HideIcon reverse={true} class={styles.hide_icon}>
+    <Card className={`${styles.annotation_list} ${className}`}>
+      <CardHeader className={styles.annotation_list_header}>
+        <HideIcon reverse={true} className={styles.hide_icon}>
           X
         </HideIcon>
         <span>Annotations</span>
       </CardHeader>
-      <CardBody class={styles.annotation_list_body}>{children}</CardBody>
+      <CardBody className={styles.annotation_list_body}>{children}</CardBody>
     </Card>
   );
 };

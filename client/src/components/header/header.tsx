@@ -1,14 +1,12 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import styles from "./header.module.css";
 
 interface HeaderProps {
-  children?: JSX.Element;
+  children?: React.ReactNode;
 }
 
-const Header: Component<HeaderProps> = (props) => {
-  const { children } = props;
-
-  return <div class={styles.header}>{children ? children : ""}</div>;
+const Header: React.FC<HeaderProps> = ({ children }) => {
+  return <div className={styles.header}>{children ? children : ""}</div>;
 };
 
 export default Header;

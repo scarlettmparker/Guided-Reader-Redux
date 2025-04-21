@@ -1,11 +1,4 @@
-import {
-  Component,
-  createEffect,
-  createSignal,
-  For,
-  createResource,
-  onMount,
-} from "solid-js";
+import React, { useState, useEffect, useContext } from "react";
 
 import {
   Text as TextType,
@@ -24,48 +17,57 @@ import TextList from "~/components/text-list";
 import TextModal from "~/components/text-modal";
 import TextListItem from "~/components/text-list-item";
 import Annotation from "~/components/annotation";
-import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
 import AnnotationList from "~/components/annotation-list";
 
+import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
 import styles from "./reader.module.css";
 
-const Reader: Component = () => {
-  const [selectedTextId, setSelectedTextId] = createSignal<number | null>(null);
-  const [hoveredTextId, setHoveredTextId] = createSignal<number | null>(null);
-  const [selectedTextData, setSelectedTextData] = createSignal<
-    TextType | undefined
-  >();
+const Reader: React.FC = () => {
+  const [selectedTextId, setSelectedTextId] = useState<number | null>(null);
+  const [hoveredTextId, setHoveredTextId] = useState<number | null>(null);
+  const [selectedTextData, setSelectedTextData] = useState<TextType | undefined>();
 
-  const [annotations, setAnnotations] = createSignal<AnnotationResponse[]>([]);
-  const [selectedAnnotation, setSelectedAnnotation] =
-    createSignal<AnnotationType | null>(null);
-  const [titles] = createResource(() => TitlesController.getTitles());
-
-  // createResource is used only to trigger the fetch when hoveredTextId changes
-  // and for other side effects that are useful (I don't want to explain just trust me)
-
-  const [] = createResource(hoveredTextId, async (id) => {
-    // Don't fetch hover text if it's the same as selected text
-    if (id === selectedTextId()) {
-      return undefined;
-    }
-
-    const cached = getFromCache(id);
-    if (cached) {
-      return { message: [cached] };
-    }
-
-    if (shouldFetchText(id)) {
-      const text = await cacheText(id);
-      return text ? { message: [text] } : undefined;
-    }
-
-    return undefined;
+  const [annotations, setAnnotations] = useState<AnnotationResponse[]>([]);
+  const [selectedAnnotation, setSelectedAnnotation] = useState<AnnotationType | null>(null);
+  const [titles, setTitles] = useState<{ loading: boolean, error?: Error, message?: any[] }>({
+    loading: true,
   });
 
+  useEffect(() => {
+    // Simulating the fetch of titles
+    TitlesController.getTitles()
+      .then(data => setTitles({ loading: false, message: data.message }))
+      .catch(err => setTitles({ loading: false, error: err }));
+  }, []);
+
+  // useEffect to handle fetch when hoveredTextId changes
+  useEffect(() => {
+    const fetchHoveredText = async (id: number | null) => {
+      if (id === selectedTextId) {
+        return undefined;
+      }
+
+      const cached = getFromCache(id!);
+      if (cached) {
+        return { message: [cached] };
+      }
+
+      if (shouldFetchText(id)) {
+        const text = await cacheText(id!);
+        return text ? { message: [text] } : undefined;
+      }
+
+      return undefined;
+    };
+
+    if (hoveredTextId !== null) {
+      fetchHoveredText(hoveredTextId);
+    }
+  }, [hoveredTextId, selectedTextId]);
+
   // Handle selection changes and fetch text if needed
-  createEffect(() => {
-    const id = selectedTextId();
+  useEffect(() => {
+    const id = selectedTextId;
     setSelectedAnnotation(null);
 
     if (id === null) {
@@ -77,16 +79,16 @@ const Reader: Component = () => {
       setSelectedTextData(cached);
     } else if (shouldFetchText(id)) {
       cacheText(id).then((text) => {
-        if (text && id === selectedTextId()) {
+        if (text && id === selectedTextId) {
           setSelectedTextData(text);
         }
       });
     }
-  });
+  }, [selectedTextId]);
 
   // Handle loading annotations upon click
-  createEffect(() => {
-    const annotation = selectedAnnotation();
+  useEffect(() => {
+    const annotation = selectedAnnotation;
     if (annotation) {
       AnnotationController.getAnnotations(
         annotation.text_id,
@@ -98,60 +100,60 @@ const Reader: Component = () => {
     } else {
       setAnnotations([]);
     }
-  });
+  }, [selectedAnnotation]);
 
-  onMount(() => {
+  useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       handleAnnotationClick(
         e,
         setSelectedAnnotation,
-        selectedTextData()?.annotations || [],
+        selectedTextData?.annotations || [],
       );
     };
+
     document.addEventListener("click", handleClick);
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  });
+  }, [selectedTextData]);
 
   return (
     <TextContext.Provider value={{ setSelectedTextId }}>
-      <div class={styles.reader}>
+      <div className={styles.reader}>
         <TextList>
           {titles.loading ? (
             <LoadingState>Loading...</LoadingState>
           ) : titles.error ? (
             <ErrorState>Error: {titles.error.message}</ErrorState>
           ) : (
-            <For each={titles()?.message}>
-              {(item) => (
-                <TextListItem
-                  class={() =>
-                    item.id === selectedTextId()
-                      ? textListItemStyles.selected
-                      : ""
-                  }
-                  onClick={() => setSelectedTextId(item.id)}
-                  onMouseOver={() => setHoveredTextId(item.id)}
-                >
-                  {item.title}
-                </TextListItem>
-              )}
-            </For>
+            titles.message?.map((item) => (
+              <TextListItem
+                key={item.id}
+                className={
+                  item.id === selectedTextId
+                    ? textListItemStyles.selected
+                    : ""
+                }
+                onClick={() => setSelectedTextId(item.id)}
+                onMouseOver={() => setHoveredTextId(item.id)}
+              >
+                {item.title}
+              </TextListItem>
+            ))
           )}
         </TextList>
         <ReaderModal>
           <TextModal
-            selectedTextId={selectedTextId()}
-            text={selectedTextData()}
+            selectedTextId={selectedTextId}
+            text={selectedTextData}
           />
         </ReaderModal>
       </div>
-      {selectedAnnotation() !== null && annotations().length > 0 && (
-        <AnnotationList class={styles.annotation_list}>
-          <For each={annotations()}>
-            {(annotation) => <Annotation annotation={annotation} />}
-          </For>
+      {selectedAnnotation !== null && annotations.length > 0 && (
+        <AnnotationList className={styles.annotation_list}>
+          {annotations.map((annotation, id) => (
+            <Annotation key={id} annotation={annotation} />
+          ))}
         </AnnotationList>
       )}
     </TextContext.Provider>

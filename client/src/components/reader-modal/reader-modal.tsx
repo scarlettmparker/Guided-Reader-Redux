@@ -1,16 +1,14 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import Header from "~/components/header";
 import styles from "./reader-modal.module.css";
 
 interface ReaderModalProps {
-  children: JSX.Element;
+  children: React.ReactNode;
 }
 
-const ReaderModal: Component<ReaderModalProps> = (props) => {
-  const { children } = props;
-
+const ReaderModal: React.FC<ReaderModalProps> = ({ children }) => {
   return (
-    <div class={styles.reader_modal}>
+    <div className={styles.reader_modal}>
       <Header />
       {children}
     </div>

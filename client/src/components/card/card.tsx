@@ -1,42 +1,38 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import styles from "./card.module.css";
 
 interface CardProps {
-  children: JSX.Element;
-  class?: string;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export const Card: Component<CardProps> = (props) => {
-  const { children, class: class_ = "" } = props;
-  return <div class={`${styles.card} ${class_}`}>{children}</div>;
+export const Card: React.FC<CardProps> = ({ children, className = "" }) => {
+  return <div className={`${styles.card} ${className}`}>{children}</div>;
 };
 
 interface CardHeaderProps {
-  children: JSX.Element;
-  class?: string;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export const CardHeader: Component<CardHeaderProps> = (props) => {
-  const { children, class: class_ = "" } = props;
-  return <div class={`${styles.card_header} ${class_}`}>{children}</div>;
+export const CardHeader: React.FC<CardHeaderProps> = ({ children, className = "" }) => {
+  return <div className={`${styles.card_header} ${className}`}>{children}</div>;
 };
 
 interface CardBodyProps {
-  children: JSX.Element;
-  class?: string;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export const CardBody: Component<CardBodyProps> = (props) => {
-  const { children, class: class_ = "" } = props;
-  return <div class={`${styles.card_body} ${class_}`}>{children}</div>;
+export const CardBody: React.FC<CardBodyProps> = ({ children, className = "" }) => {
+  return <div className={`${styles.card_body} ${className}`}>{children}</div>;
 };
 
 interface CardFooterProps {
-  children: JSX.Element;
-  class?: string;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export const CardFooter: Component<CardFooterProps> = (props) => {
-  const { children, class: class_ = "" } = props;
-  return <div class={`${styles.card_footer} ${class_}`}>{children}</div>;
+export const CardFooter: React.FC<CardFooterProps> = ({ children, className = "" }) => {
+  return <div className={`${styles.card_footer} ${className}`}>{children}</div>;
 };

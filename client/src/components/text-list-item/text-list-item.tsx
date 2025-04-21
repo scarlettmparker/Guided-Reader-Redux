@@ -1,23 +1,26 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import styles from "./text-list-item.module.css";
 
 interface TextListItemProps {
-  class?: () => string;
-  children: JSX.Element | string;
+  className?: string;
+  children: React.ReactNode | string;
   onClick: () => void;
   onMouseOver: () => void;
 }
 
-const TextListItem: Component<TextListItemProps> = (props) => {
-  const { class: class_ = () => "", onClick, onMouseOver } = props;
-
+const TextListItem: React.FC<TextListItemProps> = ({
+  className = "",
+  onClick,
+  onMouseOver,
+  children,
+}) => {
   return (
     <div
-      class={`${styles.text_list_item} ${class_()}`}
+      className={`${styles.text_list_item} ${className}`}
       onClick={onClick}
       onMouseOver={onMouseOver}
     >
-      {props.children}
+      {children}
     </div>
   );
 };

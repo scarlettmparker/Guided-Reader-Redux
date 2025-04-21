@@ -1,18 +1,16 @@
-import { Component, JSX } from "solid-js";
+import React from "react";
 import { LoaderCircle } from "~/components/lucide";
 
 import styles from "./styles/loading-state.module.css";
 
 interface LoadingStateProps {
-  class?: string;
-  children: JSX.Element | string;
+  className?: string;
+  children: React.ReactNode | string;
 }
 
-const LoadingState: Component<LoadingStateProps> = (props) => {
-  const { class: class_ = "", children } = props;
-
+const LoadingState: React.FC<LoadingStateProps> = ({ className = "", children }) => {
   return (
-    <span class={`${styles.loading_state} ${class_}`}>
+    <span className={`${styles.loading_state} ${className}`}>
       <LoaderCircle /> {children}
     </span>
   );

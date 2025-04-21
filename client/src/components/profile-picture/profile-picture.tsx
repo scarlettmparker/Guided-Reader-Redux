@@ -1,15 +1,13 @@
-import { Component } from "solid-js";
+import React from "react";
 import styles from "./profile-picture.module.css";
 
 interface ProfilePictureProps {
-  class?: string;
+  className?: string;
   avatar?: string;
   discord_id?: string;
 }
 
-const ProfilePicture: Component<ProfilePictureProps> = (props) => {
-  const { class: class_ = "", avatar, discord_id } = props;
-
+const ProfilePicture: React.FC<ProfilePictureProps> = ({ className = "", avatar, discord_id }) => {
   const avatarUrl =
     avatar && discord_id
       ? `https://cdn.discordapp.com/avatars/${discord_id}/${avatar}`
@@ -19,7 +17,7 @@ const ProfilePicture: Component<ProfilePictureProps> = (props) => {
     <img
       src={avatarUrl}
       alt="Discord Avatar"
-      class={`${styles.profile_picture} ${class_}`}
+      className={`${styles.profile_picture} ${className}`}
       width="30"
       height="30"
     />
