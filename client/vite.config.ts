@@ -1,14 +1,14 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/pynkart/' : '/',
+  base: process.env.NODE_ENV === "production" ? "/pynkart/" : "/",
   resolve: {
     alias: {
-      '~': path.resolve(__dirname, './src'),
+      "~": path.resolve(__dirname, "./src"),
     },
   },
   server: {
@@ -21,7 +21,7 @@ export default defineConfig({
       },
     },
   },
-  assetsInclude: ['**/*.json'],
+  assetsInclude: ["**/*.json"],
   json: {
     stringify: true,
   },
@@ -29,13 +29,13 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: {
-        client: '/src/entry-client.tsx'
+        client: "/src/entry-client.tsx",
       },
     },
-    outDir: 'dist/client',
-    cssCodeSplit: true
+    outDir: "dist/client",
+    cssCodeSplit: true,
   },
   ssr: {
-    noExternal: ['react-router-dom'],
+    noExternal: ["react-router-dom"],
   },
-})
+});

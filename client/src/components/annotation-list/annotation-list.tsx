@@ -8,7 +8,10 @@ interface AnnotationListProps {
   children: React.ReactNode;
 }
 
-const AnnotationList: React.FC<AnnotationListProps> = ({ className = "", children }) => {
+const AnnotationList: React.FC<AnnotationListProps> = ({
+  className = "",
+  children,
+}) => {
   return (
     <Card className={`${styles.annotation_list} ${className}`}>
       <CardHeader className={styles.annotation_list_header}>

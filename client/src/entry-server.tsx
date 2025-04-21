@@ -1,24 +1,23 @@
-import React from 'react'
-import { createI18nInstance } from '~/lib/i18n'
-import { renderToPipeableStream } from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom/server'
-import { Router } from './router'
+import React from "react";
+import { createI18nInstance } from "~/lib/i18n";
+import { renderToPipeableStream } from "react-dom/server";
+import { StaticRouter } from "react-router-dom/server";
+import { Router } from "./router";
 
 type i18n = {
-  translations: Record<string, string>
-  locale: string
-  pageName: string
-}
-
+  translations: Record<string, string>;
+  locale: string;
+  pageName: string;
+};
 
 type RenderProps = {
-  url: string
-  translations: i18n['translations']
-  locale: string
-  pageName: string
-  clientJs: string
-  clientCss: string
-}
+  url: string;
+  translations: i18n["translations"];
+  locale: string;
+  pageName: string;
+  clientJs: string;
+  clientCss: string;
+};
 
 export async function render({
   url,
@@ -29,20 +28,20 @@ export async function render({
   clientCss,
 }: RenderProps) {
   if (!clientJs || !clientCss) {
-    throw new Error('Missing required clientJs or clientCss path');
+    throw new Error("Missing required clientJs or clientCss path");
   }
 
-  const i18n = createI18nInstance()
+  const i18n = createI18nInstance();
   await i18n.init({
     lng: locale,
-    fallbackLng: 'en',
+    fallbackLng: "en",
     resources: {
       [locale]: {
         [pageName]: translations,
       },
     },
     interpolation: { escapeValue: false },
-  })
+  });
 
   return new Promise((resolve) => {
     const stream = renderToPipeableStream(
@@ -56,7 +55,7 @@ export async function render({
         onShellReady() {
           resolve({
             statusCode: 200,
-            headers: { 'Content-Type': 'text/html' },
+            headers: { "Content-Type": "text/html" },
             prelude: `<!DOCTYPE html>
               <html lang="en">
                 <head>
@@ -66,7 +65,7 @@ export async function render({
                   <title>Guided Reader</title>
                 </head>
                 <script type="module">
-                  import RefreshRuntime from 'http://${process.env.SERVER_BASE || 'localhost'}:${process.env.SERVER_PORT || '5173'}/@react-refresh'
+                  import RefreshRuntime from 'http://${process.env.SERVER_BASE || "localhost"}:${process.env.SERVER_PORT || "5173"}/@react-refresh'
                   RefreshRuntime.injectIntoGlobalHook(window)
                   window.$RefreshReg$ = () => {}
                   window.$RefreshSig$ = () => (type) => type
@@ -84,9 +83,9 @@ export async function render({
                 </body>
               </html>`,
             stream,
-          })
+          });
         },
       },
-    )
-  })
+    );
+  });
 }

@@ -10,13 +10,13 @@ interface TextListProps {
 }
 
 const TextList: React.FC<TextListProps> = ({ children }) => {
-  const { t } = useTranslation('home');
-  
+  const { t } = useTranslation("home");
+
   return (
     <div className={styles.text_list}>
       <Header>
         <HideIcon reverse={true} className={styles.hide_icon} />
-        <span>{t('texts')}</span>
+        <span>{t("texts")}</span>
       </Header>
       <TextListModal>{children}</TextListModal>
     </div>

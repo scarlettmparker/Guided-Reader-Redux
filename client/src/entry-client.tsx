@@ -4,7 +4,7 @@ import { initReactI18next } from "react-i18next";
 import ReactDOM from "react-dom/client";
 import i18n from "i18next";
 
-import './styles/globals.css';  
+import "./styles/globals.css";
 
 declare global {
   interface Window {
@@ -32,7 +32,7 @@ i18n
       document.getElementById("app") as HTMLElement,
       <BrowserRouter>
         <Router />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
   })
   .catch((error) => {

@@ -8,7 +8,10 @@ interface LoadingStateProps {
   children: React.ReactNode | string;
 }
 
-const LoadingState: React.FC<LoadingStateProps> = ({ className = "", children }) => {
+const LoadingState: React.FC<LoadingStateProps> = ({
+  className = "",
+  children,
+}) => {
   return (
     <span className={`${styles.loading_state} ${className}`}>
       <LoaderCircle /> {children}

@@ -7,7 +7,11 @@ interface ProfilePictureProps {
   discord_id?: string;
 }
 
-const ProfilePicture: React.FC<ProfilePictureProps> = ({ className = "", avatar, discord_id }) => {
+const ProfilePicture: React.FC<ProfilePictureProps> = ({
+  className = "",
+  avatar,
+  discord_id,
+}) => {
   const avatarUrl =
     avatar && discord_id
       ? `https://cdn.discordapp.com/avatars/${discord_id}/${avatar}`

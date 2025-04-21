@@ -15,7 +15,10 @@ interface CardHeaderProps {
   className?: string;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({ children, className = "" }) => {
+export const CardHeader: React.FC<CardHeaderProps> = ({
+  children,
+  className = "",
+}) => {
   return <div className={`${styles.card_header} ${className}`}>{children}</div>;
 };
 
@@ -24,7 +27,10 @@ interface CardBodyProps {
   className?: string;
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ children, className = "" }) => {
+export const CardBody: React.FC<CardBodyProps> = ({
+  children,
+  className = "",
+}) => {
   return <div className={`${styles.card_body} ${className}`}>{children}</div>;
 };
 
@@ -33,6 +39,9 @@ interface CardFooterProps {
   className?: string;
 }
 
-export const CardFooter: React.FC<CardFooterProps> = ({ children, className = "" }) => {
+export const CardFooter: React.FC<CardFooterProps> = ({
+  children,
+  className = "",
+}) => {
   return <div className={`${styles.card_footer} ${className}`}>{children}</div>;
 };

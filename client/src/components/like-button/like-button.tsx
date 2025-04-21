@@ -6,7 +6,10 @@ interface LikeButtonProps {
   reverse?: boolean;
 }
 
-const LikeButton: React.FC<LikeButtonProps> = ({ className = "", reverse = false }) => {
+const LikeButton: React.FC<LikeButtonProps> = ({
+  className = "",
+  reverse = false,
+}) => {
   const [active, setActive] = useState(false);
 
   const handleClick = () => {

@@ -4,7 +4,9 @@ type TextContextType = {
   setSelectedTextId: (id: number) => void;
 };
 
-export const TextContext = createContext<TextContextType | undefined>(undefined);
+export const TextContext = createContext<TextContextType | undefined>(
+  undefined,
+);
 
 export const useTextContext = () => {
   const context = useContext(TextContext);

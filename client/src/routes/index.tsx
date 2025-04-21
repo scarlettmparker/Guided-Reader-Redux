@@ -1,9 +1,7 @@
 import Reader from "~/components/reader";
 
 const Index: React.FC = () => {
-  return (
-    <Reader />
-  );
+  return <Reader />;
 };
 
 export default Index;

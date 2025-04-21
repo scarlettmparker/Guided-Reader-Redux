@@ -7,7 +7,11 @@ interface HideIconProps {
   children?: string;
 }
 
-const HideIcon: React.FC<HideIconProps> = ({ reverse, className, children }) => {
+const HideIcon: React.FC<HideIconProps> = ({
+  reverse,
+  className,
+  children,
+}) => {
   return (
     <div className={`${styles.hide_icon} ${className}`}>
       {children || (reverse ? ">" : "<")}

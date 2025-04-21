@@ -1,13 +1,13 @@
-import { RouteObject, useRoutes } from 'react-router-dom';
-import Index from '~/routes/index';
+import { RouteObject, useRoutes } from "react-router-dom";
+import Index from "~/routes/index";
 
 const routes: RouteObject[] = [
   {
-    path: '/',
+    path: "/",
     element: <Index />,
   },
-]
+];
 
 export const Router = () => {
-  return useRoutes(routes)
-}
+  return useRoutes(routes);
+};

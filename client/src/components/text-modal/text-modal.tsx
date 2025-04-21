@@ -14,7 +14,9 @@ const TextModal: React.FC<TextModalProps> = ({ selectedTextId, text }) => {
     <div className={styles.text_modal}>
       {selectedTextId !== null ? (
         text ? (
-          <div dangerouslySetInnerHTML={{ __html: renderAnnotatedText(text) }} />
+          <div
+            dangerouslySetInnerHTML={{ __html: renderAnnotatedText(text) }}
+          />
         ) : (
           <LoadingState>Loading text...</LoadingState>
         )

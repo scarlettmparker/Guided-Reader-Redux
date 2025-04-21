@@ -25,19 +25,26 @@ import styles from "./reader.module.css";
 const Reader: React.FC = () => {
   const [selectedTextId, setSelectedTextId] = useState<number | null>(null);
   const [hoveredTextId, setHoveredTextId] = useState<number | null>(null);
-  const [selectedTextData, setSelectedTextData] = useState<TextType | undefined>();
+  const [selectedTextData, setSelectedTextData] = useState<
+    TextType | undefined
+  >();
 
   const [annotations, setAnnotations] = useState<AnnotationResponse[]>([]);
-  const [selectedAnnotation, setSelectedAnnotation] = useState<AnnotationType | null>(null);
-  const [titles, setTitles] = useState<{ loading: boolean, error?: Error, message?: any[] }>({
+  const [selectedAnnotation, setSelectedAnnotation] =
+    useState<AnnotationType | null>(null);
+  const [titles, setTitles] = useState<{
+    loading: boolean;
+    error?: Error;
+    message?: any[];
+  }>({
     loading: true,
   });
 
   useEffect(() => {
     // Simulating the fetch of titles
     TitlesController.getTitles()
-      .then(data => setTitles({ loading: false, message: data.message }))
-      .catch(err => setTitles({ loading: false, error: err }));
+      .then((data) => setTitles({ loading: false, message: data.message }))
+      .catch((err) => setTitles({ loading: false, error: err }));
   }, []);
 
   // useEffect to handle fetch when hoveredTextId changes
@@ -130,9 +137,7 @@ const Reader: React.FC = () => {
               <TextListItem
                 key={item.id}
                 className={
-                  item.id === selectedTextId
-                    ? textListItemStyles.selected
-                    : ""
+                  item.id === selectedTextId ? textListItemStyles.selected : ""
                 }
                 onClick={() => setSelectedTextId(item.id)}
                 onMouseOver={() => setHoveredTextId(item.id)}
@@ -143,10 +148,7 @@ const Reader: React.FC = () => {
           )}
         </TextList>
         <ReaderModal>
-          <TextModal
-            selectedTextId={selectedTextId}
-            text={selectedTextData}
-          />
+          <TextModal selectedTextId={selectedTextId} text={selectedTextData} />
         </ReaderModal>
       </div>
       {selectedAnnotation !== null && annotations.length > 0 && (
