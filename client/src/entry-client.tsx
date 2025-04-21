@@ -20,7 +20,7 @@ i18n
     lng: window.__locale__ || "en",
     resources: {
       [window.__locale__ || "en"]: {
-        login: window.__translations__ || {},
+        home: window.__translations__ || {},
       },
     },
     interpolation: { escapeValue: false },
