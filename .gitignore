@@ -3,7 +3,7 @@ dist
 
 .gitattributes
 .env
-.vsode
+.vscode
 
 build/
 server/lib
