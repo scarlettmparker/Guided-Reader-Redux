@@ -30,11 +30,13 @@ namespace email
   bool insert_recovery_code(int user_id, const std::string &recovery_code, bool verbose);
   std::string generate_recovery_code();
   std::string get_rfc822_date();
-  std::string get_access_token_from_refresh_token();
+  std::string get_access_token();
 
   class SMTPClient
   {
   public:
+    std::string payload_;
+    size_t payload_pos_ = 0;
     SMTPClient(const std::string &host, int port, bool use_tls = true);
     ~SMTPClient();
 

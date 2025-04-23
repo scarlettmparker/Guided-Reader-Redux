@@ -78,19 +78,19 @@ namespace request
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cerr << "Error retrieving session data from Redis: " << e.what() << std::endl;
+      verbose &&std::cout << "Error retrieving session data from Redis: " << e.what() << std::endl;
     }
     catch (const std::invalid_argument &e)
     {
-      verbose &&std::cerr << "Invalid user_id format in Redis: " << e.what() << std::endl;
+      verbose &&std::cout << "Invalid user_id format in Redis: " << e.what() << std::endl;
     }
     catch (const std::out_of_range &e)
     {
-      verbose &&std::cerr << "User_id out of range in Redis: " << e.what() << std::endl;
+      verbose &&std::cout << "User_id out of range in Redis: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while retrieving session data from Redis" << std::endl;
+      verbose &&std::cout << "Unknown error while retrieving session data from Redis" << std::endl;
     }
     return -1;
   }
@@ -128,7 +128,7 @@ namespace request
     {
       if (!redis.exists(key))
       {
-        verbose &&std::cerr << "Session ID " << session_id << " not found" << std::endl;
+        verbose &&std::cout << "Session ID " << session_id << " not found" << std::endl;
         return false;
       }
 
@@ -139,20 +139,20 @@ namespace request
       }
       catch (const sw::redis::Error &e)
       {
-        verbose &&std::cerr << "Error getting user_id for session " << session_id << ": " << e.what() << std::endl;
+        verbose &&std::cout << "Error getting user_id for session " << session_id << ": " << e.what() << std::endl;
         return false;
       }
 
       std::string user_sessions_key = "user:" + user_id + ":sessions";
       if (!redis.srem(user_sessions_key, session_id))
       {
-        verbose &&std::cerr << "Failed to remove session ID from user sessions set" << std::endl;
+        verbose &&std::cout << "Failed to remove session ID from user sessions set" << std::endl;
         return false;
       }
 
       if (!redis.del(key))
       {
-        verbose &&std::cerr << "Failed to delete session ID " << session_id << std::endl;
+        verbose &&std::cout << "Failed to delete session ID " << session_id << std::endl;
         return false;
       }
 
@@ -160,11 +160,11 @@ namespace request
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cerr << "Error deleting session ID " << session_id << ": " << e.what() << std::endl;
+      verbose &&std::cout << "Error deleting session ID " << session_id << ": " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while deleting session ID " << session_id << std::endl;
+      verbose &&std::cout << "Unknown error while deleting session ID " << session_id << std::endl;
     }
     return false;
   }
@@ -183,7 +183,7 @@ namespace request
     std::string session_id, signature;
     if (!split_session_id(signed_session_id, session_id, signature))
     {
-      verbose &&std::cerr << "Invalid session ID format" << std::endl;
+      verbose &&std::cout << "Invalid session ID format" << std::endl;
       return false;
     }
 
@@ -193,7 +193,7 @@ namespace request
 
     if (signature != expected_signature)
     {
-      verbose &&std::cerr << "Invalid session ID signature" << std::endl;
+      verbose &&std::cout << "Invalid session ID signature" << std::endl;
       return false;
     }
 
@@ -202,7 +202,7 @@ namespace request
 
     if (!redis.exists(key))
     {
-      verbose &&std::cerr << "Session ID " << session_id << " not found" << std::endl;
+      verbose &&std::cout << "Session ID " << session_id << " not found" << std::endl;
       return false;
     }
 
@@ -213,19 +213,19 @@ namespace request
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cerr << "Redis error: " << e.what() << std::endl;
+      verbose &&std::cout << "Redis error: " << e.what() << std::endl;
       return false;
     }
 
     if (session_data.empty())
     {
-      verbose &&std::cerr << "Session ID " << session_id << " not found" << std::endl;
+      verbose &&std::cout << "Session ID " << session_id << " not found" << std::endl;
       return false;
     }
 
     if (session_data.find("user_id") == session_data.end())
     {
-      verbose &&std::cerr << "Session ID " << session_id << " missing user ID" << std::endl;
+      verbose &&std::cout << "Session ID " << session_id << " missing user ID" << std::endl;
       return false;
     }
 
@@ -237,7 +237,7 @@ namespace request
 
       if (now > expires_at)
       {
-        verbose &&std::cerr << "Session ID " << session_id << " has expired" << std::endl;
+        verbose &&std::cout << "Session ID " << session_id << " has expired" << std::endl;
         return false;
       }
     }

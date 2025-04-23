@@ -25,7 +25,7 @@ namespace email
       auto ttl = redis.ttl(key);
       if (ttl < 0)
       {
-        verbose &&std::cerr << "Recovery code for user " << user_id << " has expired" << std::endl;
+        verbose &&std::cout << "Recovery code for user " << user_id << " has expired" << std::endl;
         redis.del(key);
         return false;
       }
@@ -34,11 +34,11 @@ namespace email
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cerr << "Error retrieving recovery code from Redis: " << e.what() << std::endl;
+      verbose &&std::cout << "Error retrieving recovery code from Redis: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while retrieving recovery code from Redis" << std::endl;
+      verbose &&std::cout << "Unknown error while retrieving recovery code from Redis" << std::endl;
     }
     return false;
   }
@@ -64,7 +64,7 @@ namespace email
       }
       if (!redis.expire(key, 300))
       {
-        verbose &&std::cerr << "Failed to set expiration for recovery code" << std::endl;
+        verbose &&std::cout << "Failed to set expiration for recovery code" << std::endl;
         redis.del(key);
         return false;
       }
@@ -72,11 +72,11 @@ namespace email
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cerr << "Error setting recovery code in Redis: " << e.what() << std::endl;
+      verbose &&std::cout << "Error setting recovery code in Redis: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while setting recovery code in Redis" << std::endl;
+      verbose &&std::cout << "Unknown error while setting recovery code in Redis" << std::endl;
     }
     return false;
   }
@@ -118,7 +118,15 @@ namespace email
     return buffer;
   }
 
-  std::string get_access_token_from_refresh_token()
+  /**
+   * @brief Retrieves a new Gmail OAuth2 access token using the configured refresh token.
+   *
+   * This makes a POST request to the Gmail OAuth2 token endpoint
+   * with the credentials and refresh token from env to obtain a fresh access token.
+   *
+   * @return Access token string if successful.
+   */
+  std::string get_access_token()
   {
 
     httpclient::HTTPClient client{READER_EMAIL_OAUTH, "443", true};
@@ -141,6 +149,35 @@ namespace email
     {
       throw std::runtime_error("Failed to get access token!");
     }
+  }
+
+  /**
+   * @brief Callback function used by libcurl to read email payload data from memory.
+   *
+   * This is called repeatedly by libcurl when sending the email body via SMTP.
+   * It reads from the internal string buffer (payload_) of the SMTPClient instance,
+   * copying data into `ptr` for libcurl to send.
+   *
+   * @param ptr Pointer to the buffer where data should be copied.
+   * @param size Size of a single element.
+   * @param nmemb Number of elements to write.
+   * @param userp Pointer to the SMTPClient instance (cast from void*).
+   * @return size_t The number of bytes copied into ptr (may be less than size * nmemb on the last call).
+   */
+  static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
+  {
+    SMTPClient *client = static_cast<SMTPClient *>(userp);
+    size_t buffer_size = size * nmemb;
+    size_t remaining = client->payload_.size() - client->payload_pos_;
+    size_t to_copy = std::min(buffer_size, remaining);
+
+    if (to_copy > 0)
+    {
+      std::memcpy(ptr, client->payload_.c_str() + client->payload_pos_, to_copy);
+      client->payload_pos_ += to_copy;
+    }
+
+    return to_copy;
   }
 
   SMTPClient::SMTPClient(const std::string &host, int port, bool use_tls)
@@ -189,6 +226,12 @@ namespace email
     is_connected_ = true;
   }
 
+  /**
+   * Set libcurl opts for OAuth2 username and access token using XOAUTH2
+   *
+   * @param email Email address (hi@scarlettparker.co.uk)
+   * @param access_token Access token from get_access_token()
+   */
   void SMTPClient::set_oauth2_opts(const std::string &email, const std::string &access_token)
   {
     if (!is_connected_)
@@ -197,6 +240,7 @@ namespace email
     }
 
     curl_easy_setopt(curl_, CURLOPT_USERNAME, email.c_str());
+    curl_easy_setopt(curl_, CURLOPT_LOGIN_OPTIONS, "AUTH=XOAUTH2");
     curl_easy_setopt(curl_, CURLOPT_XOAUTH2_BEARER, access_token.c_str());
   }
 
@@ -233,12 +277,14 @@ namespace email
     email_content << body;
 
     std::string payload = email_content.str();
+    payload_ = payload;
+    payload_pos_ = 0;
 
     curl_easy_setopt(curl_, CURLOPT_MAIL_FROM, from.c_str());
     curl_easy_setopt(curl_, CURLOPT_MAIL_RCPT, recipients);
-    curl_easy_setopt(curl_, CURLOPT_READDATA, &payload);
+    curl_easy_setopt(curl_, CURLOPT_READFUNCTION, payload_source);
+    curl_easy_setopt(curl_, CURLOPT_READDATA, this);
     curl_easy_setopt(curl_, CURLOPT_UPLOAD, 1L);
-    curl_easy_setopt(curl_, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(curl_, CURLOPT_TIMEOUT, 60L);
 
     CURLcode res = curl_easy_perform(curl_);
@@ -288,7 +334,7 @@ namespace email
       client_ = std::make_unique<SMTPClient>(config.host, config.port, true);
       client_->connect();
 
-      std::string access_token = get_access_token_from_refresh_token();
+      std::string access_token = get_access_token();
       client_->set_oauth2_opts(config.username, access_token);
 
       is_configured_ = true;
@@ -296,7 +342,7 @@ namespace email
     }
     catch (const std::exception &e)
     {
-      std::cerr << "Error in configuring email service: " << e.what() << std::endl;
+      // std::cerr << "Error in configuring email service: " << e.what() << std::endl;
     }
   }
 

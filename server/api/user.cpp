@@ -77,7 +77,7 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cerr << "Error committing transaction: " << e.what() << std::endl;
+        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -90,11 +90,11 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error executing query: " << e.what() << std::endl;
+      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while executing query" << std::endl;
+      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return -1;
   }
@@ -120,7 +120,7 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cerr << "Error committing transaction: " << e.what() << std::endl;
+        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -134,12 +134,12 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error executing query: " << e.what() << std::endl;
+      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
       return "";
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while executing query" << std::endl;
+      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return "";
     }
     return "";
@@ -168,7 +168,7 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cerr << "Error committing transaction: " << e.what() << std::endl;
+        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -182,11 +182,11 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error executing query: " << e.what() << std::endl;
+      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while executing query" << std::endl;
+      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return user_data;
   }
@@ -210,7 +210,7 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cerr << "Error committing transaction: " << e.what() << std::endl;
+        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -223,12 +223,12 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error executing query: " << e.what() << std::endl;
+      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
       return "";
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while executing query" << std::endl;
+      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return "";
     }
     return "";
@@ -253,7 +253,7 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cerr << "Error committing transaction: " << e.what() << std::endl;
+        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -266,12 +266,12 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error executing query: " << e.what() << std::endl;
+      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
       return "";
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while executing query" << std::endl;
+      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return "";
     }
     return "";
@@ -301,7 +301,7 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cerr << "Error committing transaction: " << e.what() << std::endl;
+        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -309,12 +309,12 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error executing query: " << e.what() << std::endl;
+      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
       return false;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while executing query" << std::endl;
+      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return false;
     }
   }

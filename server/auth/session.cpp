@@ -12,7 +12,7 @@ namespace session
     unsigned char buffer[16];
     if (RAND_bytes(buffer, sizeof(buffer)) != 1)
     {
-      verbose &&std::cerr << "Failed to generate session ID" << std::endl;
+      verbose &&std::cout << "Failed to generate session ID" << std::endl;
     }
 
     std::stringstream session_id;
@@ -81,19 +81,19 @@ namespace session
       }
       catch (const sw::redis::Error &e)
       {
-        verbose &&std::cerr << "Failed to set session hash in Redis: " << e.what() << std::endl;
+        verbose &&std::cout << "Failed to set session hash in Redis: " << e.what() << std::endl;
         return false;
       }
 
       if (!redis.expire(key, duration))
       {
-        verbose &&std::cerr << "Failed to set session expiration in Redis" << std::endl;
+        verbose &&std::cout << "Failed to set session expiration in Redis" << std::endl;
         return false;
       }
 
       if (!redis.sadd("user:" + std::to_string(user_id) + ":sessions", signed_session_id))
       {
-        verbose &&std::cerr << "Failed to add session ID to user sessions set in Redis" << std::endl;
+        verbose &&std::cout << "Failed to add session ID to user sessions set in Redis" << std::endl;
         return false;
       }
 
@@ -101,12 +101,12 @@ namespace session
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cerr << "Error setting session ID: " << e.what() << std::endl;
+      verbose &&std::cout << "Error setting session ID: " << e.what() << std::endl;
       return false;
     }
     catch (...)
     {
-      verbose &&std::cerr << "Unknown error while setting session ID" << std::endl;
+      verbose &&std::cout << "Unknown error while setting session ID" << std::endl;
       return false;
     }
   }
