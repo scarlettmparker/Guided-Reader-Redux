@@ -341,57 +341,6 @@ private:
 public:
   UserHandler(ConnectionPool &connection_pool) : pool(connection_pool)
   {
-    pqxx::connection *conn = pool.acquire();
-    conn->prepare("select_user_id",
-                 "SELECT id "
-                 "FROM public.\"User\" "
-                 "WHERE username = $1 "
-                 "LIMIT 1");
-
-    conn->prepare("select_email",
-                 "SELECT email "
-                 "FROM public.\"User\" "
-                 "WHERE email = $1 "
-                 "LIMIT 1");
-
-    conn->prepare("select_user_data_by_id",
-                 "SELECT row_to_json(t) "
-                 "FROM ("
-                 "  SELECT id, username, discord_id, avatar, nickname, accepted_policy "
-                 "  FROM public.\"User\" "
-                 "  WHERE id = $1 "
-                 "  LIMIT 1"
-                 ") t");
-
-    conn->prepare("select_username_by_id",
-                 "SELECT username "
-                 "FROM public.\"User\" "
-                 "WHERE id = $1 "
-                 "LIMIT 1");
-
-    conn->prepare("select_user_password",
-                 "SELECT password "
-                 "FROM public.\"User\" "
-                 "WHERE username = $1 "
-                 "LIMIT 1");
-
-    conn->prepare("insert_user",
-                 "INSERT INTO public.\"User\" ("
-                 "username, email, password, levels, discord_id, account_creation_date, "
-                 "avatar, nickname"
-                 ") VALUES ("
-                 "$1, $2, $3, '{-1}', '-1', $4, '-1', $1"
-                 ")");
-
-    conn->prepare("update_user_roles",
-                 "UPDATE public.\"User\" "
-                 "SET levels = $2 "
-                 "WHERE id = $1");
-
-    conn->prepare("update_user_data",
-                 "UPDATE public.\"User\" "
-                 "SET avatar = $2, nickname = $3 "
-                 "WHERE id = $1");
   }
 
   std::string get_endpoint() const override

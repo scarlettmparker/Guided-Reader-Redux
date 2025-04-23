@@ -191,35 +191,6 @@ private:
 public:
   VoteHandler(ConnectionPool &connection_pool) : pool(connection_pool)
   {
-    pqxx::connection *conn = pool.acquire();
-    conn->prepare("select_interaction_data",
-                 "SELECT array_to_json(array_agg(row_to_json(t))) "
-                 "FROM ("
-                 "  SELECT json_build_object("
-                 "           'user_id', uai.user_id,"
-                 "           'type', uai.type"
-                 "         ) as interaction "
-                 "  FROM public.\"UserAnnotationInteraction\" uai"
-                 "  WHERE uai.annotation_id = $1"
-                 ") t");
-
-    conn->prepare("select_annotation_interaction_type",
-                 "SELECT type "
-                 "FROM public.\"UserAnnotationInteraction\" "
-                 "WHERE annotation_id = $1 "
-                 "AND user_id = $2");
-
-    conn->prepare("insert_interaction",
-                 "INSERT INTO public.\"UserAnnotationInteraction\" ("
-                 "annotation_id, user_id, type"
-                 ") VALUES ("
-                 "$1, $2, $3"
-                 ")");
-
-    conn->prepare("delete_interaction",
-                 "DELETE FROM public.\"UserAnnotationInteraction\" "
-                 "WHERE annotation_id = $1 "
-                 "AND user_id = $2");
   }
 
   std::string get_endpoint() const override

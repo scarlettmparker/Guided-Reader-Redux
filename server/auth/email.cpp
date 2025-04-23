@@ -120,7 +120,8 @@ namespace email
 
   std::string get_access_token_from_refresh_token()
   {
-    httpclient::HTTPClient client{READER_EMAIL_HOST, std::to_string(READER_EMAIL_PORT), true};
+
+    httpclient::HTTPClient client{READER_EMAIL_OAUTH, "443", true};
     client.set_content_type("application/x-www-form-urlencoded");
 
     std::stringstream body;
@@ -130,12 +131,7 @@ namespace email
          << "&grant_type=refresh_token";
 
     std::string response = client.post("/token", body.str());
-
-    auto json = nlohmann::json::parse(response, nullptr, false);
-    if (json.is_discarded())
-    {
-      throw std::runtime_error("Failed to parse JSON response: " + response);
-    }
+    nlohmann::json json = nlohmann::json::parse(response);
 
     if (json.contains("access_token"))
     {
@@ -172,6 +168,11 @@ namespace email
    */
   void SMTPClient::connect()
   {
+    if (is_connected_)
+    {
+      return;
+    }
+
     std::string url = (use_tls_ ? "smtps://" : "smtp://") + host_ + ":" + std::to_string(port_);
     curl_easy_reset(curl_);
 
@@ -188,7 +189,7 @@ namespace email
     is_connected_ = true;
   }
 
-  void SMTPClient::login_with_oauth2(const std::string &email, const std::string &access_token)
+  void SMTPClient::set_oauth2_opts(const std::string &email, const std::string &access_token)
   {
     if (!is_connected_)
     {
@@ -197,14 +198,6 @@ namespace email
 
     curl_easy_setopt(curl_, CURLOPT_USERNAME, email.c_str());
     curl_easy_setopt(curl_, CURLOPT_XOAUTH2_BEARER, access_token.c_str());
-
-    CURLcode res = curl_easy_perform(curl_);
-
-    if (res != CURLE_OK)
-    {
-      std::string error_msg = "OAuth2 authentication failed (" + std::to_string(res) + "): " + curl_easy_strerror(res);
-      throw std::runtime_error(error_msg);
-    }
   }
 
   /**
@@ -241,11 +234,11 @@ namespace email
 
     std::string payload = email_content.str();
 
-    // Set options for sending email
     curl_easy_setopt(curl_, CURLOPT_MAIL_FROM, from.c_str());
     curl_easy_setopt(curl_, CURLOPT_MAIL_RCPT, recipients);
     curl_easy_setopt(curl_, CURLOPT_READDATA, &payload);
     curl_easy_setopt(curl_, CURLOPT_UPLOAD, 1L);
+    curl_easy_setopt(curl_, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(curl_, CURLOPT_TIMEOUT, 60L);
 
     CURLcode res = curl_easy_perform(curl_);
@@ -290,14 +283,21 @@ namespace email
   void EmailService::configure(const email_config &config)
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    client_ = std::make_unique<SMTPClient>(config.host, config.port, true);
-    client_->connect();
+    try
+    {
+      client_ = std::make_unique<SMTPClient>(config.host, config.port, true);
+      client_->connect();
 
-    std::string access_token = get_access_token_from_refresh_token();
-    client_->login_with_oauth2(config.username, access_token);
+      std::string access_token = get_access_token_from_refresh_token();
+      client_->set_oauth2_opts(config.username, access_token);
 
-    is_configured_ = true;
-    std::cout << "Email service configured with OAuth2" << std::endl;
+      is_configured_ = true;
+      std::cout << "Email service configured with OAuth2" << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+      std::cerr << "Error in configuring email service: " << e.what() << std::endl;
+    }
   }
 
   /**

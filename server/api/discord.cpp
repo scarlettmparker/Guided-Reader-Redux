@@ -525,34 +525,6 @@ private:
 public:
   DiscordHandler(ConnectionPool &connection_pool) : pool(connection_pool)
   {
-    pqxx::connection *conn = pool.acquire();
-    conn->prepare("select_user_id_by_discord_id",
-                 "SELECT id "
-                 "FROM public.\"User\" "
-                 "WHERE discord_id = $1 "
-                 "LIMIT 1");
-
-    conn->prepare("register_with_discord",
-                 "INSERT INTO public.\"User\" ("
-                 "discord_id, username, avatar, account_creation_date"
-                 ") VALUES ("
-                 "$1, $2, $3, $4"
-                 ")");
-
-    conn->prepare("link_user_to_discord",
-                 "UPDATE public.\"User\" "
-                 "SET discord_id = $2 "
-                 "WHERE id = $1");
-
-    conn->prepare("validate_discord_status",
-                 "UPDATE public.\"User\" "
-                 "SET discord_status = true "
-                 "WHERE id = $1");
-
-    conn->prepare("invalidate_discord_status",
-                 "UPDATE public.\"User\" "
-                 "SET discord_status = false "
-                 "WHERE id = $1");
   }
 
   std::string get_endpoint() const override

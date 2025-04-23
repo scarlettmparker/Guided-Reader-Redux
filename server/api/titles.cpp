@@ -79,19 +79,6 @@ private:
 public:
   TitlesHandler(ConnectionPool &connection_pool) : pool(connection_pool)
   {
-    pqxx::connection *conn = pool.acquire();
-    conn->prepare("select_titles",
-                 "SELECT array_to_json(array_agg(row_to_json(t))) "
-                 "FROM ("
-                 "  SELECT id::integer,"
-                 "         title::text,"
-                 "         level::text,"
-                 "         group_id::integer "
-                 "  FROM public.\"TextObject\" "
-                 "  WHERE id > $2 "
-                 "  ORDER BY id "
-                 "  LIMIT $1"
-                 ") t");
   }
 
   std::string get_endpoint() const override

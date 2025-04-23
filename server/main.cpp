@@ -39,6 +39,14 @@ int main()
 
     auto &service = email::EmailService::get_instance();
     service.configure(config);
+    
+      // Send a test email after successful login
+    service.send_email(
+        READER_EMAIL_ADDRESS,                                        // from
+        "scarwe2020@gmail.com",                                      // to
+        "OAuth2 SMTP Login Test",                                    // subject
+        "This is a test email sent after a successful OAuth2 login." // body
+    );
 
     for (std::size_t i = 0; i < std::thread::hardware_concurrency(); ++i)
     {

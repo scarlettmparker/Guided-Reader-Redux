@@ -15,7 +15,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "https://readerapi.scarlettparker.co.uk",
+        target: "http://0.0.0.0:443/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

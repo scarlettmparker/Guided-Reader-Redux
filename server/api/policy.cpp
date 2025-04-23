@@ -100,17 +100,6 @@ private:
 public:
   PolicyHandler(ConnectionPool &connection_pool) : pool(connection_pool)
   {
-    pqxx::connection *conn = pool.acquire();
-    conn->prepare("select_accepted_policy",
-                 "SELECT accepted_policy "
-                 "FROM public.\"User\" "
-                 "WHERE id = $1 "
-                 "LIMIT 1");
-
-    conn->prepare("set_accepted_policy",
-                 "UPDATE public.\"User\" "
-                 "SET accepted_policy = $2 "
-                 "WHERE id = $1");
   }
 
   std::string get_endpoint() const override

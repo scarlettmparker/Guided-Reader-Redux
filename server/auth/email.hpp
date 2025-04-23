@@ -24,8 +24,6 @@ namespace email
     std::string host;
     int port;
     std::string username;
-    std::string password;
-    bool use_tls;
   };
 
   bool validate_recovery_code(int user_id, const std::string &recovery_code, bool verbose);
@@ -41,7 +39,7 @@ namespace email
     ~SMTPClient();
 
     void connect();
-    void login_with_oauth2(const std::string &email, const std::string &access_token);
+    void set_oauth2_opts(const std::string &email, const std::string &access_token);
     void send_mail(const std::string &from,
                    const std::string &to,
                    const std::string &subject,
