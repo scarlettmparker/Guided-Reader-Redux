@@ -35,8 +35,7 @@ int main()
         READER_EMAIL_HOST,
         READER_EMAIL_PORT,
         READER_EMAIL_ADDRESS,
-        READER_EMAIL_PASSWORD,
-        true};
+    };
 
     auto &service = email::EmailService::get_instance();
     service.configure(config);

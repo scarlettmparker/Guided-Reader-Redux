@@ -2,6 +2,7 @@
 #define EMAIL_HPP
 
 #include <string>
+#include <nlohmann/json.hpp>
 #include <curl/curl.h>
 #include <stdexcept>
 #include <sstream>
@@ -14,6 +15,7 @@
 #include <iomanip>
 
 #include "../db/redis.hpp"
+#include "httpclient.hpp"
 
 namespace email
 {
@@ -30,6 +32,7 @@ namespace email
   bool insert_recovery_code(int user_id, const std::string &recovery_code, bool verbose);
   std::string generate_recovery_code();
   std::string get_rfc822_date();
+  std::string get_access_token_from_refresh_token();
 
   class SMTPClient
   {
@@ -38,7 +41,7 @@ namespace email
     ~SMTPClient();
 
     void connect();
-    void login(const std::string &username, const std::string &password);
+    void login_with_oauth2(const std::string &email, const std::string &access_token);
     void send_mail(const std::string &from,
                    const std::string &to,
                    const std::string &subject,

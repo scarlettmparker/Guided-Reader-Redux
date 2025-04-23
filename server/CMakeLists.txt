@@ -132,6 +132,7 @@ add_executable(
   main.cpp
   server.cpp
   auth/email.cpp
+  auth/httpclient.cpp
   db/redis.cpp
   db/postgres.cpp
 )
