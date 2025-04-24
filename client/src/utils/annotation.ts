@@ -1,5 +1,5 @@
 import { Annotation, Text as TextType } from "~/types";
-import styles from "~/components/text-modal/text-modal.module.css";
+import styles from "~/components/index/text-modal/text-modal.module.css";
 
 /**
  * Calculate the time ago from a given timestamp to human readable format.

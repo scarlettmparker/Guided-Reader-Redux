@@ -12,14 +12,17 @@ import { handleAnnotationClick } from "~/utils/annotation";
 import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 
 import { LoadingState, ErrorState } from "~/components/state";
-import ReaderModal from "~/components/reader-modal";
-import TextList from "~/components/text-list";
-import TextModal from "~/components/text-modal";
-import TextListItem from "~/components/text-list-item";
-import Annotation from "~/components/annotation";
-import AnnotationList from "~/components/annotation-list";
+import { CardHeader } from "~/components/card";
+import HideIcon from "~/components/hide-icon";
+import ReaderModal from "~/components/index/reader-modal";
+import TextList from "~/components/index/text-list";
+import TextModal from "~/components/index/text-modal";
+import TextListItem from "~/components/index/text-list-item";
+import Annotation from "~/components/index/annotation";
+import AnnotationList from "~/components/index/annotation-list";
 
-import textListItemStyles from "~/components/text-list-item/text-list-item.module.css";
+import textListItemStyles from "~/components/index/text-list-item/text-list-item.module.css";
+import annotationListStyles from "~/components/index/annotation-list/annotation-list.module.css";
 import styles from "./reader.module.css";
 
 const Reader: React.FC = () => {
@@ -100,7 +103,7 @@ const Reader: React.FC = () => {
       AnnotationController.getAnnotations(
         annotation.text_id,
         annotation.start,
-        annotation.end,
+        annotation.end
       ).then((data) => {
         setAnnotations(data?.message || []);
       });
@@ -114,7 +117,7 @@ const Reader: React.FC = () => {
       handleAnnotationClick(
         e,
         setSelectedAnnotation,
-        selectedTextData?.annotations || [],
+        selectedTextData?.annotations || []
       );
     };
 
@@ -153,6 +156,16 @@ const Reader: React.FC = () => {
       </div>
       {selectedAnnotation !== null && annotations.length > 0 && (
         <AnnotationList className={styles.annotation_list}>
+          <CardHeader className={annotationListStyles.annotation_list_header}>
+            <HideIcon
+              reverse={true}
+              className={annotationListStyles.hide_icon}
+              onClick={() => setSelectedAnnotation(null)}
+            >
+              X
+            </HideIcon>
+            <span>Annotations</span>
+          </CardHeader>
           {annotations.map((annotation, id) => (
             <Annotation key={id} annotation={annotation} />
           ))}

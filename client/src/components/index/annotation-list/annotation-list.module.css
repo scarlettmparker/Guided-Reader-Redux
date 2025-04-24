@@ -1,7 +1,8 @@
 .annotation_list {
   display: flex;
   flex-direction: column;
-  width: fit-content;
+  width: 100%;
+  max-width: 480px;
   gap: 4px;
   padding: 20px 15px;
 
