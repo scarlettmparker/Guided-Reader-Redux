@@ -29,3 +29,13 @@
 .navbar_header:hover {
   color: var(--link);
 }
+
+.navbar_login {
+  padding: 5px 10px;
+  border-radius: var(--border-rad-sm);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.navbar_login:hover {
+  background-color: var(--modal-hover);
+}
