@@ -10,10 +10,7 @@ const Navbar: React.FC = () => {
       <CardHeader className={styles.navbar_header}>
         <span
           className={styles.navbar_login}
-          onClick={() => {
-            console.log("hi");
-            navigate("/login");
-          }}
+          onClick={() => navigate("/login")}
         >
           Login
         </span>
