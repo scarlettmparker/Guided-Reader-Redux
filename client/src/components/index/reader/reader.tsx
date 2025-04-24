@@ -103,7 +103,7 @@ const Reader: React.FC = () => {
       AnnotationController.getAnnotations(
         annotation.text_id,
         annotation.start,
-        annotation.end
+        annotation.end,
       ).then((data) => {
         setAnnotations(data?.message || []);
       });
@@ -117,7 +117,7 @@ const Reader: React.FC = () => {
       handleAnnotationClick(
         e,
         setSelectedAnnotation,
-        selectedTextData?.annotations || []
+        selectedTextData?.annotations || [],
       );
     };
 
