@@ -1,5 +1,1 @@
-const Index: React.FC = () => {
-  return <></>;
-};
-
-export default Index;
+export { default } from './login'

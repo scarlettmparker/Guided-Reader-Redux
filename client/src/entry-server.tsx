@@ -1,5 +1,5 @@
 import React from "react";
-import { createI18nInstance } from "~/lib/i18n";
+import { createI18nInstance } from "~/utils/i18n";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import { Router } from "./router";

@@ -1,11 +1,16 @@
 import { RouteObject, useRoutes } from "react-router-dom";
 import Index from "~/routes/index";
+import Login from "~/routes/login";
 
 const routes: RouteObject[] = [
   {
     path: "/",
     element: <Index />,
   },
+  {
+    path: '/',
+    element: <Login />
+  }
 ];
 
 export const Router = () => {

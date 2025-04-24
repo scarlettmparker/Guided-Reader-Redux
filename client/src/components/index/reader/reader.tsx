@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Text as TextType,
@@ -44,7 +44,7 @@ const Reader: React.FC = () => {
   });
 
   useEffect(() => {
-    // Simulating the fetch of titles
+    // Fetch of titles for the text list items
     TitlesController.getTitles()
       .then((data) => setTitles({ loading: false, message: data.message }))
       .catch((err) => setTitles({ loading: false, error: err }));
