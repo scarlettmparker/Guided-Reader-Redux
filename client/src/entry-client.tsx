@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 import ReactDOM from "react-dom/client";
 import i18n from "i18next";
 
+import Layout from "./layout";
 import "./styles/globals.css";
 
 declare global {
@@ -31,7 +32,9 @@ i18n
     ReactDOM.hydrateRoot(
       document.getElementById("app") as HTMLElement,
       <BrowserRouter>
-        <Router />
+        <Layout>
+          <Router />
+        </Layout>
       </BrowserRouter>,
     );
   })

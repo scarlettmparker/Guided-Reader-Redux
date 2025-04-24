@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./card.module.css";
 
 interface CardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
@@ -11,7 +11,7 @@ export const Card: React.FC<CardProps> = ({ children, className = "" }) => {
 };
 
 interface CardHeaderProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
@@ -23,7 +23,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
 };
 
 interface CardBodyProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
@@ -35,7 +35,7 @@ export const CardBody: React.FC<CardBodyProps> = ({
 };
 
 interface CardFooterProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 

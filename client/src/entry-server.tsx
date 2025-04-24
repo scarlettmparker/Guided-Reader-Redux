@@ -3,6 +3,7 @@ import { createI18nInstance } from "~/utils/i18n";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import { Router } from "./router";
+import Layout from "./layout";
 
 type i18n = {
   translations: Record<string, string>;
@@ -47,7 +48,9 @@ export async function render({
     const stream = renderToPipeableStream(
       <React.StrictMode>
         <StaticRouter location={url}>
-          <Router />
+          <Layout>
+            <Router />
+          </Layout>
         </StaticRouter>
       </React.StrictMode>,
       {
@@ -85,7 +88,7 @@ export async function render({
             stream,
           });
         },
-      },
+      }
     );
   });
 }

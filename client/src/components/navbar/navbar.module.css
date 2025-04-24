@@ -1,0 +1,25 @@
+.navbar {
+  position: absolute;
+  border-top: none;
+  border-radius: 0 0 var(--border-rad-sm) var(--border-rad-sm);
+
+  width: 100%;
+  max-width: 480px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.navbar_header {
+  position: relative;
+  margin-left: auto;
+  user-select: none;
+  text-decoration: none;
+  cursor: pointer;
+
+  color: var(--text);  
+  transition: var(--color-transition);
+}
+
+.navbar_header:hover {
+  color: var(--link);
+}

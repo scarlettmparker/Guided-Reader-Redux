@@ -39,6 +39,9 @@
   --border-rad-xs: 4px;
   --border-rad-sm: 8px;
   --border-rad: 15px;
+
+  /* animations */
+  --color-transition: color 0.2s ease-in-out
 }
 
 body {
@@ -51,7 +54,7 @@ body {
 a {
   color: var(--link);
   text-decoration: var(--underline);
-  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  transition: var(--color-transition), background-color 0.2s ease-in-out;
 }
 
 a:hover {

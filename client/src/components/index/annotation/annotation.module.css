@@ -21,7 +21,7 @@
   cursor: pointer;
 
   border-radius: var(--border-rad-sm);
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition: var(--color-transition), background-color 0.2s ease-in-out;
 }
 
 .username:hover {
