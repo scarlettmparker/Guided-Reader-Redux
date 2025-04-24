@@ -1,12 +1,17 @@
 .navbar {
   position: absolute;
   border-top: none;
-  border-radius: 0 0 var(--border-rad-sm) var(--border-rad-sm);
+  border-radius: 0 0 var(--border-rad) var(--border-rad);
 
   width: 100%;
   max-width: 480px;
+  height: 3rem;
   left: 50%;
   transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
 
 .navbar_header {
@@ -18,6 +23,7 @@
 
   color: var(--text);  
   transition: var(--color-transition);
+  font-size: var(--text-xl);
 }
 
 .navbar_header:hover {
