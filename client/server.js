@@ -1,6 +1,7 @@
 import express from "express";
 import fs from "fs/promises";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { Writable } from "stream";
 import { config } from "dotenv";
 
@@ -14,6 +15,7 @@ const base = process.env.SERVER_BASE || "/";
 
 const app = express();
 app.use(express.static(path.resolve("./public")));
+app.use(cookieParser()); // Use cookie-parser middleware
 
 async function preloadTranslations(locale, page) {
   const basePath = path.resolve(`./locales/${page}`);
@@ -56,20 +58,55 @@ if (!isProduction) {
   app.use(base, sirv("./dist/client", { extensions: ["html", "js", "css"] }));
 }
 
+// Mock API call for user roles
+async function getUserRoles(authToken) {
+  if (authToken === "admin_token_abc") {
+    return ["admin", "reader"];
+  }
+  if (authToken === "reader_token_123") {
+    return ["reader"];
+  }
+  
+  return [];
+}
+
+const requiredRolesMap = {
+  "/": ["admin"],
+};
+
+/**
+ * 
+ * @param {string} path
+ * @param {string[]} userRoles
+ */
+function requiredRoles(path, userRoles) {
+  const required = requiredRolesMap[path];
+  if (!required) return true;
+  return required.some(role => userRoles.includes(role));
+}
+
 app.get("*", async (req, res, next) => {
   if (/\.[^\/]+$/.test(req.path)) {
     return next();
   }
 
   try {
-    let manifest;
+    let url = req.originalUrl.replace(base, "");
+    if (!url.startsWith("/")) url = "/" + url;
 
+    // Mock test authentication check
+    const authToken = req.cookies.authtoken;
+    const userRoles = await getUserRoles(authToken);
+
+    if (!requiredRoles(url, userRoles)) {
+      res.status(403).send("<p>Unauthorized</p>");
+      return;
+    }
+
+    let manifest;
     if (isProduction) {
       manifest = await loadManifest();
     }
-
-    let url = req.originalUrl.replace(base, "");
-    if (!url.startsWith("/")) url = "/" + url;
 
     // Localization
     const langHeader = req.headers["accept-language"] || "en";
