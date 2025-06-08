@@ -13,8 +13,6 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    const destination = `http://${host}:${port}/:path*`;
-
     return [
       {
         source: '/api/:path*',
