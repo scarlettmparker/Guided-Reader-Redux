@@ -1,4 +1,4 @@
-import { Card, CardHeader } from "~/components/card";
+import { Card, CardHeader } from "@/components/card";
 import { useNavigate } from "react-router-dom";
 import styles from "./navbar.module.css";
 

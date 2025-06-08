@@ -1,8 +1,8 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
-import TextListModal from "~/components/index/text-list-modal";
-import Header from "~/components/header";
-import HideIcon from "~/components/hide-icon";
+import {useTranslations} from 'next-intl';
+import TextListModal from "@/components/index/text-list-modal";
+import Header from "@/components/header";
+import HideIcon from "@/components/hide-icon";
 import styles from "./text-list.module.css";
 
 interface TextListProps {
@@ -10,7 +10,7 @@ interface TextListProps {
 }
 
 const TextList: React.FC<TextListProps> = ({ children }) => {
-  const { t } = useTranslation("home");
+  const t = useTranslations("home");
 
   return (
     <div className={styles.text_list}>

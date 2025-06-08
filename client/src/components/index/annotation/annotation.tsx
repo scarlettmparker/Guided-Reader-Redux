@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, CardFooter, CardHeader } from "~/components/card";
-import LikeButton from "~/components/like-button";
-import ProfilePicture from "~/components/profile-picture";
-import { unixToDate } from "~/utils/annotation";
-import { AnnotationResponse } from "~/types";
+import { Card, CardBody, CardFooter, CardHeader } from "@/components/card";
+import LikeButton from "@/components/like-button";
+import ProfilePicture from "@/components/profile-picture";
+import { unixToDate } from "@/utils/annotation";
+import { AnnotationResponse } from "@/types";
 import { marked } from "marked";
 import styles from "./annotation.module.css";
 

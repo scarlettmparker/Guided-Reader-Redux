@@ -1,28 +1,29 @@
+"use client";
 import React, { useState, useEffect } from "react";
 
 import {
   Text as TextType,
   Annotation as AnnotationType,
   AnnotationResponse,
-} from "~/types";
+} from "@/types";
 
-import { TextContext } from "~/contexts/text-context";
-import { AnnotationController, TitlesController } from "~/utils/api";
-import { handleAnnotationClick } from "~/utils/annotation";
-import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
+import { TextContext } from "@/contexts/text-context";
+import { AnnotationController, TitlesController } from "@/utils/api";
+import { handleAnnotationClick } from "@/utils/annotation";
+import { shouldFetchText, getFromCache, cacheText } from "@/utils/text";
 
-import { LoadingState, ErrorState } from "~/components/state";
-import { CardHeader } from "~/components/card";
-import HideIcon from "~/components/hide-icon";
-import ReaderModal from "~/components/index/reader-modal";
-import TextList from "~/components/index/text-list";
-import TextModal from "~/components/index/text-modal";
-import TextListItem from "~/components/index/text-list-item";
-import Annotation from "~/components/index/annotation";
-import AnnotationList from "~/components/index/annotation-list";
+import { LoadingState, ErrorState } from "@/components/state";
+import { CardHeader } from "@/components/card";
+import HideIcon from "@/components/hide-icon";
+import ReaderModal from "@/components/index/reader-modal";
+import TextList from "@/components/index/text-list";
+import TextModal from "@/components/index/text-modal";
+import TextListItem from "@/components/index/text-list-item";
+import Annotation from "@/components/index/annotation";
+import AnnotationList from "@/components/index/annotation-list";
 
-import textListItemStyles from "~/components/index/text-list-item/text-list-item.module.css";
-import annotationListStyles from "~/components/index/annotation-list/annotation-list.module.css";
+import textListItemStyles from "@/components/index/text-list-item/text-list-item.module.css";
+import annotationListStyles from "@/components/index/annotation-list/annotation-list.module.css";
 import styles from "./reader.module.css";
 
 const Reader: React.FC = () => {

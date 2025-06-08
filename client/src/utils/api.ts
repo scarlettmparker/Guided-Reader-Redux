@@ -1,4 +1,4 @@
-import { AnnotationResponse, TextListItem as TextListItemType } from "~/types";
+import { AnnotationResponse, TextListItem as TextListItemType } from "@/types";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;

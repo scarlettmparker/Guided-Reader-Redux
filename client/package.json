@@ -1,34 +1,28 @@
 {
-  "name": "vite-template-solid",
-  "version": "0.0.0",
-  "description": "",
-  "type": "module",
+  "name": "guided-reader-redux",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "dev": "nodemon",
-    "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build --ssrManifest --outDir dist/client",
-    "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
-    "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
-    "preview": "cross-env NODE_ENV=production node server"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@types/react-dom": "^19.1.2",
-    "prettier": "^3.5.3",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.0"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@types/node": "^22.14.1",
-    "@vitejs/plugin-react": "^4.4.1",
-    "cookie-parser": "^1.4.7",
-    "dotenv": "^16.5.0",
-    "express": "4.20.0",
     "marked": "^15.0.8",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-i18next": "^15.4.1",
-    "react-router-dom": "^6.22.0",
+    "next": "15.3.3",
+    "next-intl": "^4.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "wordreference": "^1.1.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.3",
+    "typescript": "^5"
   }
 }

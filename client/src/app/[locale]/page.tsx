@@ -1,4 +1,4 @@
-import Reader from "~/components/index/reader";
+import Reader from "@/components/index/reader";
 
 const Index: React.FC = () => {
   return <Reader />;

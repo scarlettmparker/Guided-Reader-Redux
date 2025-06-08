@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardBody } from "~/components/card";
+import { Card, CardBody } from "@/components/card";
 import styles from "./annotation-list.module.css";
 
 interface AnnotationListProps {

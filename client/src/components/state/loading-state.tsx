@@ -1,5 +1,5 @@
 import React from "react";
-import { LoaderCircle } from "~/components/lucide";
+import { LoaderCircle } from "@/components/lucide";
 
 import styles from "./styles/loading-state.module.css";
 

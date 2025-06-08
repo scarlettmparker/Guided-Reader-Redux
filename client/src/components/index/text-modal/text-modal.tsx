@@ -1,7 +1,7 @@
 import React from "react";
-import { LoadingState } from "~/components/state";
-import { Text as TextType } from "~/types";
-import { renderAnnotatedText } from "~/utils/annotation";
+import { LoadingState } from "@/components/state";
+import { Text as TextType } from "@/types";
+import { renderAnnotatedText } from "@/utils/annotation";
 import styles from "./text-modal.module.css";
 
 interface TextModalProps {
