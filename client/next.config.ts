@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
     }
 
     const destination = `http://${host}:${port}/:path*`;
-    console.log(destination);
 
     return [
       {
