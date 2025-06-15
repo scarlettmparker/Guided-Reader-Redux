@@ -14,15 +14,15 @@ import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 import { LoadingState, ErrorState } from "~/components/state";
 import { CardHeader } from "~/components/card";
 import HideIcon from "~/components/hide-icon";
-import ReaderModal from "~/components/index/reader-modal";
-import TextList from "~/components/index/text-list";
-import TextModal from "~/components/index/text-modal";
-import TextListItem from "~/components/index/text-list-item";
-import Annotation from "~/components/index/annotation";
-import AnnotationList from "~/components/index/annotation-list";
+import ReaderModal from "~/components/routes/index/reader-modal";
+import TextList from "~/components/routes/index/text-list";
+import TextModal from "~/components/routes/index/text-modal";
+import TextListItem from "~/components/routes/index/text-list-item";
+import Annotation from "~/components/routes/index/annotation";
+import AnnotationList from "~/components/routes/index/annotation-list";
 
-import textListItemStyles from "~/components/index/text-list-item/text-list-item.module.css";
-import annotationListStyles from "~/components/index/annotation-list/annotation-list.module.css";
+import textListItemStyles from "~/components/routes/index/text-list-item/text-list-item.module.css";
+import annotationListStyles from "~/components/routes/index/annotation-list/annotation-list.module.css";
 import styles from "./reader.module.css";
 
 const Reader: React.FC = () => {

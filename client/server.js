@@ -15,8 +15,11 @@ const base = process.env.SERVER_BASE || "/";
 
 const app = express();
 app.use(express.static(path.resolve("./public")));
-app.use(cookieParser()); // Use cookie-parser middleware
+app.use(cookieParser());
 
+/**
+ * 
+ */
 async function preloadTranslations(locale, page) {
   const basePath = path.resolve(`./locales/${page}`);
   const localeFile = path.join(basePath, `${locale}.json`);
@@ -58,21 +61,16 @@ if (!isProduction) {
   app.use(base, sirv("./dist/client", { extensions: ["html", "js", "css"] }));
 }
 
-// Mock API call for user roles
+/**
+ * Does nothing.
+ * 
+ * @param authToken The users authentication token.
+ */
 async function getUserRoles(authToken) {
-  if (authToken === "admin_token_abc") {
-    return ["admin", "reader"];
-  }
-  if (authToken === "reader_token_123") {
-    return ["reader"];
-  }
-  
   return [];
 }
 
-const requiredRolesMap = {
-  "/": ["admin"],
-};
+const requiredRolesMap = {};
 
 /**
  * 
@@ -111,7 +109,10 @@ app.get("*", async (req, res, next) => {
     // Localization
     const langHeader = req.headers["accept-language"] || "en";
     const locale = langHeader.split(",")[0] || "en";
-    const pageName = url.split("/")[1] || "home";
+
+    // Get everything before '?' (so that GET requests don't shit themselves)
+    const urlPath = url.split("?")[0];
+    const pageName = urlPath.split("/")[1] || "home";
     const translations = await preloadTranslations(locale, pageName);
 
     let render;

@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import TextListModal from "~/components/index/text-list-modal";
+import TextListModal from "~/components/routes/index/text-list-modal";
 import Header from "~/components/header";
 import HideIcon from "~/components/hide-icon";
 import styles from "./text-list.module.css";
