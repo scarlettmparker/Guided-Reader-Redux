@@ -16,7 +16,7 @@ const TextList: React.FC<TextListProps> = ({ children }) => {
     <div className={styles.text_list}>
       <Header>
         <HideIcon reverse={true} className={styles.hide_icon} />
-        <span>{t("texts")}</span>
+        <span>{t("text-list.texts")}</span>
       </Header>
       <TextListModal>{children}</TextListModal>
     </div>

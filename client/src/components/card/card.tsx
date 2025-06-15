@@ -22,6 +22,18 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   return <div className={`${styles.card_header} ${className}`}>{children}</div>;
 };
 
+interface CardSubHeaderProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+export const CardSubHeader: React.FC<CardSubHeaderProps> = ({
+  children,
+  className = ""
+}) => {
+    return <div className={`${styles.card_subheader} ${className}`}>{children}</div>;
+}
+
 interface CardBodyProps {
   children?: React.ReactNode;
   className?: string;

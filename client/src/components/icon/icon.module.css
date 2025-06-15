@@ -1,0 +1,23 @@
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.icon.small {
+  width: 16px;
+  height: 16px;
+}
+
+.icon.large {
+  width: 32px;
+  height: 32px;
+}
+
+.icon.xl {
+  width: 48px;
+  height: 48px;
+}
+
+.icon.hover {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(55%) saturate(2725%) hue-rotate(324deg) brightness(87%) contrast(84%);
+}

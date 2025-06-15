@@ -42,11 +42,11 @@ int main()
 
     for (std::size_t i = 0; i < std::thread::hardware_concurrency(); ++i)
     {
-      threads.emplace_back([&ioc]
+      threads.emplace_back([& ioc]
                            { ioc.run(); });
     }
 
-    for (auto &t : threads)
+    for (auto & t : threads)
     {
       t.join();
     }

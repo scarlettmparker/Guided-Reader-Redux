@@ -8,7 +8,7 @@ const routes: RouteObject[] = [
     element: <Index />,
   },
   {
-    path: '/',
+    path: '/login',
     element: <Login />
   }
 ];

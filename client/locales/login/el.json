@@ -1,0 +1,17 @@
+{
+  "form": {
+    "header": {
+      "welcome": "Καλώς ήθρες",
+      "sign-in": "Βάλε τα στοιχεία σου για να κάνεις log in"
+    },
+    "body": {
+      "username": "Όνομα χρήστη",
+      "password": "Κωδικός πρόσβασης",
+      "sign-in": "Σύνδεση"
+    },
+    "footer": {
+      "continue": "Ή ΣΥΝΕΧΙΣΕ ΜΕ",
+      "discord": "Discord"
+    }
+  }
+}

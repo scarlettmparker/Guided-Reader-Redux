@@ -1,0 +1,5 @@
+.label {
+  font-size: var(--text-md);
+  color: var(--text);
+  width: fit-content;
+}

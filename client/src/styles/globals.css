@@ -4,6 +4,7 @@
   /* text colors */
   --text: #080808;
   --text-grey: #606060;
+  --link-light: #e86a8a;
   --link: #cf3a5f;
   --link-hover: #7c1031;
   --underline: underline dotted rgba(37, 37, 37, 0.4);
@@ -22,6 +23,7 @@
 
   /* borders */
   --modal-border: 1px solid #e5e7eb;
+  --input-border: 1px solid #d1d5db;
 
   /* font sizes */
   --text-sm: 11px;

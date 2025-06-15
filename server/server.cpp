@@ -50,7 +50,7 @@ namespace server
    * @param req HTTP request to handle.
    * @return HTTP response.
    */
-  http::response<http::string_body> handle_request(http::request<http::string_body> const &req, const std::string &ip_address)
+  http::response<http::string_body> handle_request(http::request<http::string_body> const & req, const std::string & ip_address)
   {
     static std::vector<std::unique_ptr<RequestHandler>> handlers = load_handlers(".");
     http::response<http::string_body> res;
@@ -85,10 +85,7 @@ namespace server
 
     // Set CORS headers
     res.set(http::field::access_control_allow_origin, READER_ALLOWED_ORIGIN);
-    res.set(http::field::access_control_allow_methods, allowed_methods);
-    res.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
-    res.set(http::field::access_control_allow_credentials, "true");
-    res.set(http::field::connection, "keep-alive");
+    res.keep_alive(req.keep_alive());
     return res;
   }
 
