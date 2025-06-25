@@ -52,8 +52,8 @@ export async function renderApp(
     } else {
       const productionManifest = await loadManifest();
       render = (await import("../dist/server/entry-server.js")).render;
-      clientJs = productionManifest["src/entry-client.tsx"].file;
-      clientCss = productionManifest["src/entry-client.tsx"].css[0];
+      clientJs = "/" + productionManifest["src/entry-client.tsx"].file;
+      clientCss = "/" + productionManifest["src/entry-client.tsx"].css[0];
     }
 
     // Pass user and other data to SSR render function

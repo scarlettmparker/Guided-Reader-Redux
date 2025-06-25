@@ -42,7 +42,12 @@ if (!isProduction) {
   const { createProxyMiddleware } = await import("http-proxy-middleware");
 
   app.use(compression());
-  app.use(base, sirv("./dist/client", { extensions: ["html", "js", "css"] }));
+  app.use(
+    sirv(path.resolve("dist/client"), {
+      extensions: ["html", "js", "css"],
+      dev: false,
+    })
+  );
   app.use("/locales", express.static(path.resolve("./locales")));
 
   // Proxy API requests to the backend server
@@ -53,7 +58,7 @@ if (!isProduction) {
       changeOrigin: true,
       pathRewrite: { "^/api": "" },
       secure: false,
-    }),
+    })
   );
 }
 

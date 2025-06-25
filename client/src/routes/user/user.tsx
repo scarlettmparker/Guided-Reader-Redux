@@ -55,10 +55,10 @@ const User: React.FC = () => {
   const checkWrap = () => {
     if (userHeaderRef.current) {
       const profilePicture = userHeaderRef.current.querySelector(
-        `.${styles.user_profile_picture}`,
+        `.${styles.user_profile_picture}`
       ) as HTMLElement;
       const userDetail = userHeaderRef.current.querySelector(
-        `.${styles.user_detail}`,
+        `.${styles.user_detail}`
       ) as HTMLElement;
 
       if (profilePicture && userDetail) {
