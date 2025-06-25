@@ -8,6 +8,7 @@
       "username": "Username",
       "password": "Password",
       "sign-in": "Sign In to Account",
+      "signing-in": "Signing In...",
       "error": {
         "username-error": "Please enter your username",
         "password-error": "Please enter your password"

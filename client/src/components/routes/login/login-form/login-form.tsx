@@ -18,6 +18,7 @@ function validateUsername(username: string) {
     /^[a-zA-Z0-9_]+$/.test(username)
   );
 }
+
 function validatePassword(password: string) {
   return typeof password === "string" && password.length >= 8;
 }
@@ -29,7 +30,6 @@ interface LoginFormProps {
 
 /**
  * Login Form component. Used to log the user in.
- * No actual scheme validation for this currently.
  *
  * @param
  */
@@ -56,7 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = () => {
     setLoading(true);
     try {
       await UserController.login(username, password);
-      // Optionally: reload user context or redirect
+      window.location.replace("/"); // Hard refresh to reload user data
     } catch (err: any) {
       setError(err.message);
     } finally {

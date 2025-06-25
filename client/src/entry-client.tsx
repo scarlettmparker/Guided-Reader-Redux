@@ -12,6 +12,7 @@ declare global {
   interface Window {
     __locale__?: string;
     __translations__?: Record<string, any>;
+    __user__?: any;
   }
 }
 
@@ -45,14 +46,12 @@ function AppWithI18n() {
       i18n.changeLanguage(locale);
     });
   }, [location.pathname]);
-  return (
-    <Layout>
-      <Router />
-    </Layout>
-  );
+  return <Router />;
 }
 
 // Initialize i18n on the client with translations injected from the server
+const user = window.__user__;
+
 i18n
   .use(initReactI18next)
   .init({
@@ -70,7 +69,9 @@ i18n
     ReactDOM.hydrateRoot(
       document.getElementById("app") as HTMLElement,
       <BrowserRouter>
-        <AppWithI18n />
+        <Layout user={user}>
+          <AppWithI18n />
+        </Layout>
       </BrowserRouter>
     );
   })

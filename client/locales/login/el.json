@@ -8,6 +8,7 @@
       "username": "Όνομα χρήστη",
       "password": "Κωδικός πρόσβασης",
       "sign-in": "Σύνδεση",
+      "signing-in": "Συνδέεσαι...",
       "error": {
         "username-error": "βάλε το όνομα χρήστη",
         "password-error": "βάλε τον κωδικό πρόσβασης"

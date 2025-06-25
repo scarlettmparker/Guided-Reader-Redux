@@ -1,52 +1,27 @@
+/**
+ * @fileoverview Main entry point for the Express server application.
+ * Sets up middleware, Vite integration (for development), and routes, then starts the server.
+ */
+
 import express from "express";
-import fs from "fs/promises";
 import path from "path";
 import cookieParser from "cookie-parser";
-import { Writable } from "stream";
-import { config } from "dotenv";
-
-const isProduction = process.env.NODE_ENV === "production";
-config({
-  path: `.env${isProduction ? ".production" : ""}`,
-});
-
-const port = process.env.SERVER_PORT || 5173;
-const base = process.env.SERVER_BASE || "/";
+import { port, base, isProduction, backendHost, backendPort } from "./config.js";
+import { setupRoutes } from "./routes/index.js";
 
 const app = express();
+
+// Serve static files from the 'public' directory
 app.use(express.static(path.resolve("./public")));
+
+// Parse cookies from the request headers
 app.use(cookieParser());
 
-/**
- * 
- */
-async function preloadTranslations(locale, page) {
-  const basePath = path.resolve(`./locales/${page}`);
-  const localeFile = path.join(basePath, `${locale}.json`);
-  const fallbackFile = path.join(basePath, "en.json");
-
-  try {
-    const file = await fs.readFile(localeFile, "utf-8");
-    return JSON.parse(file);
-  } catch {
-    console.warn(
-      `Missing locale for ${locale} at ${localeFile}, falling back to en.json`,
-    );
-    const fallback = await fs.readFile(fallbackFile, "utf-8");
-    return JSON.parse(fallback);
-  }
-}
-
-// Load manifest for production
-async function loadManifest() {
-  const manifestPath = path.resolve("./dist/client/.vite/manifest.json");
-  const manifest = JSON.parse(await fs.readFile(manifestPath, "utf-8"));
-  return manifest;
-}
-
-// Add Vite or respective production middlewares
 let vite;
+
+// Conditional setup for Vite development server or production static serving
 if (!isProduction) {
+  // In development, create and use the Vite dev server middleware
   const { createServer } = await import("vite");
   vite = await createServer({
     server: { middlewareMode: true },
@@ -55,121 +30,32 @@ if (!isProduction) {
   });
   app.use(vite.middlewares);
 } else {
+  // In production, use compression and serve static files from the build output
   const compression = (await import("compression")).default;
   const sirv = (await import("sirv")).default;
+  const { createProxyMiddleware } = await import("http-proxy-middleware");
+
   app.use(compression());
   app.use(base, sirv("./dist/client", { extensions: ["html", "js", "css"] }));
+  app.use("/locales", express.static(path.resolve("./locales")));
+
+
+  // Proxy API requests to the backend server
+  app.use(
+    "/api",
+    createProxyMiddleware({
+      target: `http://${backendHost}:${backendPort}`,
+      changeOrigin: true,
+      pathRewrite: { "^/api": "" },
+      secure: false,
+    })
+  );
 }
 
-/**
- * Does nothing.
- * 
- * @param authToken The users authentication token.
- */
-async function getUserRoles(authToken) {
-  return [];
-}
+// Set up all defined application routes
+setupRoutes(app, vite);
 
-const requiredRolesMap = {};
-
-/**
- * 
- * @param {string} path
- * @param {string[]} userRoles
- */
-function requiredRoles(path, userRoles) {
-  const required = requiredRolesMap[path];
-  if (!required) return true;
-  return required.some(role => userRoles.includes(role));
-}
-
-app.get("*", async (req, res, next) => {
-  if (/\.[^\/]+$/.test(req.path)) {
-    return next();
-  }
-
-  try {
-    let url = req.originalUrl.replace(base, "");
-    if (!url.startsWith("/")) url = "/" + url;
-
-    // Mock test authentication check
-    const authToken = req.cookies.authtoken;
-    const userRoles = await getUserRoles(authToken);
-
-    if (!requiredRoles(url, userRoles)) {
-      res.status(403).send("<p>Unauthorized</p>");
-      return;
-    }
-
-    let manifest;
-    if (isProduction) {
-      manifest = await loadManifest();
-    }
-
-    // Localization
-    const langHeader = req.headers["accept-language"] || "en";
-    const locale = langHeader.split(",")[0] || "en";
-
-    // Get everything before '?' (so that GET requests don't shit themselves)
-    const urlPath = url.split("?")[0];
-    const pageName = urlPath.split("/")[1] || "home";
-    const translations = await preloadTranslations(locale, pageName);
-
-    let render;
-    if (!isProduction) {
-      render = (await vite.ssrLoadModule("/src/entry-server.tsx")).render;
-    } else {
-      render = (await import("./dist/server/entry-server.js")).render;
-    }
-
-    // Hashed JS/CSS for production
-    let clientJs, clientCss;
-
-    if (isProduction) {
-      clientJs = manifest["src/entry-client.tsx"].file;
-      clientCss = manifest["src/entry-client.tsx"].css[0];
-    } else {
-      clientJs = "/src/entry-client.tsx";
-      clientCss = "/src/styles/globals.css";
-    }
-
-    const rendered = await render({
-      url,
-      translations,
-      locale,
-      pageName,
-      clientJs,
-      clientCss,
-    });
-
-    res.statusCode = rendered.statusCode;
-    for (const [key, value] of Object.entries(rendered.headers)) {
-      res.setHeader(key, value);
-    }
-
-    res.write(rendered.prelude);
-
-    const writable = new Writable({
-      write(chunk, _encoding, callback) {
-        res.write(chunk);
-        callback();
-      },
-      final(callback) {
-        res.write(rendered.postlude);
-        res.end();
-        callback();
-      },
-    });
-
-    rendered.stream.pipe(writable);
-  } catch (e) {
-    vite?.ssrFixStacktrace(e);
-    console.error(e.stack);
-    res.status(500).end(e.stack);
-  }
-});
-
-// Start http server
+// Start the HTTP server
 app.listen(port, () => {
   console.log(`Server started at http://localhost:${port}`);
 });

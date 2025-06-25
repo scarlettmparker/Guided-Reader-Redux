@@ -20,20 +20,30 @@
   user-select: none;
   text-decoration: none;
   cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
 
   color: var(--text);  
   transition: var(--color-transition);
   font-size: var(--text-xl);
 }
 
-.navbar_header:hover {
-  color: var(--link);
+.navbar_user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .navbar_login {
   padding: 5px 10px;
   border-radius: var(--border-rad-sm);
   transition: background-color 0.2s ease-in-out;
+}
+
+.navbar_login:hover {
+  color: var(--link);
 }
 
 .navbar_login:hover {

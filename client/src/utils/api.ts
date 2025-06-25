@@ -84,15 +84,28 @@ export const AnnotationController = {
 };
 
 export const UserController = {
-  login: (username: string, password: string) =>
-    getFetch<{ message: any }>("/api/user", {
+  login: async (username: string, password: string) => {
+    const response = await fetch("/login", {
       method: "POST",
-      body: JSON.stringify({ username, password }),
       headers: { "Content-Type": "application/json" },
-      // No retries for login by default
-      retries: 1,
-    }),
-  get: () =>
-    getFetch<{ message: any }>("/api/user", { method: "GET", retries: 1 }),
-  logout: () => getFetch<null>("/api/logout", { method: "POST", retries: 1 }),
+      body: JSON.stringify({ username, password }),
+      credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Login failed");
+    }
+    return response.json();
+  },
+  logout: async (id: number) => {
+    const response = await fetch(`/logout`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ id }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error("Logout failed");
+    }
+    window.location.href = "/";
+  },
 };

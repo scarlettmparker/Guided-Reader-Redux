@@ -18,15 +18,16 @@ type RenderProps = {
   pageName: string;
   clientJs: string;
   clientCss: string;
+  user?: any;
 };
 
 export async function render({
   url,
-  translations,
   locale,
   pageName,
   clientJs,
   clientCss,
+  user,
 }: RenderProps) {
   if (!clientJs || !clientCss) {
     throw new Error("Missing required clientJs or clientCss path");
@@ -36,19 +37,16 @@ export async function render({
   await i18n.init({
     lng: locale,
     fallbackLng: "en",
-    resources: {
-      [locale]: {
-        [pageName]: translations,
-      },
-    },
+    resources: {},
     interpolation: { escapeValue: false },
   });
+  const translations = i18n.getResourceBundle(locale, pageName) || {};
 
   return new Promise((resolve) => {
     const stream = renderToPipeableStream(
       <React.StrictMode>
         <StaticRouter location={url}>
-          <Layout>
+          <Layout user={user}>
             <Router />
           </Layout>
         </StaticRouter>
@@ -75,9 +73,10 @@ export async function render({
                   window.__vite_plugin_react_preamble_installed__ = true
                 </script>
                 <script>
-                  // Inject the translations into the client-side window object
+                  // Inject the translations and user into the client-side window object
                   window.__translations__ = ${JSON.stringify(translations)};
                   window.__locale__ = '${locale}';
+                  window.__user__ = ${JSON.stringify(user)};
                 </script>
                 <body>
                   <div id="app">`,
