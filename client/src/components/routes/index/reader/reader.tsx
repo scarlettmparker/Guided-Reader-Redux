@@ -48,6 +48,13 @@ const Reader: React.FC = () => {
     loading: true,
   });
 
+  const handleAnnotationClose = () => {
+    setSelectedAnnotation(null);
+    const params = new URLSearchParams(location.search);
+    params.delete("annotation_id");
+    window.history.replaceState({}, "", `${location.pathname}?${params.toString()}`);
+  };
+
   useEffect(() => {
     // Fetch of titles for the text list items
     TitlesController.getTitles()
@@ -108,7 +115,7 @@ const Reader: React.FC = () => {
       AnnotationController.getAnnotations(
         annotation.text_id,
         annotation.start,
-        annotation.end,
+        annotation.end
       ).then((data) => {
         setAnnotations(data?.message || []);
       });
@@ -122,7 +129,7 @@ const Reader: React.FC = () => {
       handleAnnotationClick(
         e,
         setSelectedAnnotation,
-        selectedTextData?.annotations || [],
+        selectedTextData?.annotations || []
       );
     };
 
@@ -150,7 +157,7 @@ const Reader: React.FC = () => {
       selectedTextData.id === textId
     ) {
       const found = selectedTextData.annotations.find(
-        (a: AnnotationType) => a.id === annotationId,
+        (a: AnnotationType) => a.id === annotationId
       );
       if (found) {
         setSelectedAnnotation(found);
@@ -195,7 +202,7 @@ const Reader: React.FC = () => {
             <HideIcon
               reverse={true}
               className={annotationListStyles.hide_icon}
-              onClick={() => setSelectedAnnotation(null)}
+              onClick={handleAnnotationClose}
             >
               X
             </HideIcon>
