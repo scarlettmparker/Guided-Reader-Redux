@@ -8,7 +8,12 @@ import {
 
 import { TextContext } from "~/contexts/text-context";
 import { AnnotationController, TitlesController } from "~/utils/api";
-import { handleAnnotationClick } from "~/utils/annotation";
+import {
+  getAnnotationIdFromQuery,
+  getTextIdFromQuery,
+  handleAnnotationClick,
+  updateQueryParams,
+} from "~/utils/annotation";
 import { shouldFetchText, getFromCache, cacheText } from "~/utils/text";
 
 import { LoadingState, ErrorState } from "~/components/state";
@@ -103,7 +108,7 @@ const Reader: React.FC = () => {
       AnnotationController.getAnnotations(
         annotation.text_id,
         annotation.start,
-        annotation.end,
+        annotation.end
       ).then((data) => {
         setAnnotations(data?.message || []);
       });
@@ -117,7 +122,7 @@ const Reader: React.FC = () => {
       handleAnnotationClick(
         e,
         setSelectedAnnotation,
-        selectedTextData?.annotations || [],
+        selectedTextData?.annotations || []
       );
     };
 
@@ -126,6 +131,36 @@ const Reader: React.FC = () => {
       document.removeEventListener("click", handleClick);
     };
   }, [selectedTextData]);
+
+  // On mount, parse query params and set selectedTextId
+  useEffect(() => {
+    const textId = getTextIdFromQuery();
+    if (textId !== null) {
+      setSelectedTextId(textId);
+    }
+  }, []);
+
+  // When selectedTextData loads, check for annotation_id param and set annotation if found
+  useEffect(() => {
+    const annotationId = getAnnotationIdFromQuery();
+    const textId = getTextIdFromQuery();
+    if (
+      annotationId !== null &&
+      selectedTextData &&
+      selectedTextData.id === textId
+    ) {
+      const found = selectedTextData.annotations.find(
+        (a: AnnotationType) => a.id === annotationId
+      );
+      if (found) {
+        setSelectedAnnotation(found);
+      }
+    }
+  }, [selectedTextData]);
+
+  useEffect(() => {
+    updateQueryParams(selectedTextId, selectedAnnotation);
+  }, [selectedTextId, selectedAnnotation]);
 
   return (
     <TextContext.Provider value={{ setSelectedTextId }}>

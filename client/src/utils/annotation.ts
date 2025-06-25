@@ -2,6 +2,71 @@ import { Annotation, Text as TextType } from "~/types";
 import styles from "~/components/routes/index/text-modal/text-modal.module.css";
 
 /**
+ * Get the current window location (for SSR)
+ */
+function getLocation() {
+  if (typeof window !== "undefined") {
+    return window.location;
+  }
+  return { pathname: "", search: "" };
+}
+
+/**
+ * Update the browser URL without reloading the page.
+ *
+ * @param url - New URL to set in the browser.
+ */
+function updateUrl(url: string) {
+  if (typeof window !== "undefined") {
+    window.history.pushState({}, "", url);
+  }
+}
+
+/**
+ * Get the annotation id from the query params
+ */
+export function getAnnotationIdFromQuery(): number | null {
+  const location = getLocation();
+  const params = new URLSearchParams(location.search);
+  const annotationId = params.get("annotation_id");
+  return annotationId ? Number(annotationId) : null;
+}
+
+/**
+ * Get the text id from the query params
+ */
+export function getTextIdFromQuery(): number | null {
+  const location = getLocation();
+  const params = new URLSearchParams(location.search);
+  const textParam = params.get("text");
+  return textParam ? Number(textParam) : null;
+}
+
+/**
+ * Update the query parameters in the URL based on the selected text and annotation.
+ *
+ *  @param selectedTextId - ID of the selected text, or null to clear it.
+ *  @param selectedAnnotation - Selected annotation object, or null to clear it.
+ */
+export function updateQueryParams(
+  selectedTextId: number | null,
+  selectedAnnotation: Annotation | null
+) {
+  const location = getLocation();
+  const params = new URLSearchParams(location.search);
+  if (selectedTextId !== null) {
+    params.set("text", String(selectedTextId));
+  } else {
+    params.delete("text");
+  }
+  if (selectedAnnotation) {
+    params.set("annotation_id", String(selectedAnnotation.id));
+  }
+  const newUrl = `${location.pathname}?${params.toString()}`;
+  updateUrl(newUrl);
+}
+
+/**
  * Calculate the time ago from a given timestamp to human readable format.
  *
  * @param timestamp Timestamp to calculate time ago from.
@@ -71,7 +136,7 @@ function processTextNode(
   parts: string[],
   annotations: Annotation[],
   textNode: string,
-  startOffset: number,
+  startOffset: number
 ) {
   let currentOffset = startOffset;
   let lastAnnotatedIndex = 0;
@@ -86,26 +151,26 @@ function processTextNode(
       const overlapStart = Math.max(annotation.start, currentOffset);
       const overlapEnd = Math.min(
         annotation.end,
-        currentOffset + textNode.length,
+        currentOffset + textNode.length
       );
       const unannotatedText = textNode.slice(
         lastAnnotatedIndex,
-        overlapStart - currentOffset,
+        overlapStart - currentOffset
       );
 
       if (unannotatedText) {
         parts.push(
-          `<span id="plain-text-${plainTextCounter++}">${unannotatedText}</span>`,
+          `<span id="plain-text-${plainTextCounter++}">${unannotatedText}</span>`
         );
       }
 
       const annotatedText = textNode.slice(
         overlapStart - currentOffset,
-        overlapEnd - currentOffset,
+        overlapEnd - currentOffset
       );
       if (annotatedText) {
         parts.push(
-          `<span id="annotated-text-${annotation.id}" class="${styles.annotated_text}">${annotatedText}</span>`,
+          `<span id="annotated-text-${annotation.id}" class="${styles.annotated_text}">${annotatedText}</span>`
         );
       }
 
@@ -118,7 +183,7 @@ function processTextNode(
     const remainingText = textNode.slice(lastAnnotatedIndex);
     if (remainingText) {
       parts.push(
-        `<span id="plain-text-${plainTextCounter++}">${remainingText}</span>`,
+        `<span id="plain-text-${plainTextCounter++}">${remainingText}</span>`
       );
     }
   }
@@ -133,7 +198,7 @@ function processTextNode(
 function getAttributes(element: HTMLElement): string {
   return Array.from(element.attributes).reduce(
     (attrs, attr) => `${attrs} ${attr.name}="${attr.value}"`,
-    "",
+    ""
   );
 }
 
@@ -152,7 +217,7 @@ function processNode(
   lastIndex: number,
   parts: string[],
   annotations: Annotation[],
-  node: Node,
+  node: Node
 ) {
   if (node.nodeType === Node.TEXT_NODE) {
     const textNode = node.textContent || "";
@@ -203,7 +268,7 @@ export function renderAnnotatedText(text: TextType): string {
 export const handleAnnotationClick = (
   event: MouseEvent,
   setSelectedAnnotation: (annotation: Annotation | null) => void,
-  annotations: Annotation[],
+  annotations: Annotation[]
 ) => {
   const target = event.target as HTMLElement;
   if (target.id.startsWith("annotated-text-")) {
