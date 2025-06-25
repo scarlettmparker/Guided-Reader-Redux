@@ -1,4 +1,4 @@
-import styles from './button.module.css';
+import styles from "./button.module.css";
 
 interface ButtonProps {
   children?: React.ReactNode | string;
@@ -17,7 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   onMouseOver,
   onMouseLeave,
-  disabled = false
+  disabled = false,
 }) => {
   const handleMouseUp = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.currentTarget.blur();

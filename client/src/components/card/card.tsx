@@ -29,10 +29,12 @@ interface CardSubHeaderProps {
 
 export const CardSubHeader: React.FC<CardSubHeaderProps> = ({
   children,
-  className = ""
+  className = "",
 }) => {
-    return <div className={`${styles.card_subheader} ${className}`}>{children}</div>;
-}
+  return (
+    <div className={`${styles.card_subheader} ${className}`}>{children}</div>
+  );
+};
 
 interface CardBodyProps {
   children?: React.ReactNode;

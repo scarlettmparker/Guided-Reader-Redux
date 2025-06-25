@@ -72,7 +72,7 @@ i18n
         <Layout user={user}>
           <AppWithI18n />
         </Layout>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
   })
   .catch((error) => {

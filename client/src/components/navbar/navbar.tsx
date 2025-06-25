@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import ProfilePicture from "../profile-picture";
 import styles from "./navbar.module.css";
 
-
 const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();

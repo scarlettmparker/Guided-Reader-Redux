@@ -18,7 +18,7 @@ let manifest;
 async function loadManifest() {
   if (!manifest) {
     manifest = JSON.parse(
-      await fs.readFile(path.resolve(manifestPath), "utf-8")
+      await fs.readFile(path.resolve(manifestPath), "utf-8"),
     );
   }
   return manifest;
@@ -39,7 +39,7 @@ async function loadManifest() {
  */
 export async function renderApp(
   { vite, isProduction, url, locale, pageName, user },
-  res
+  res,
 ) {
   try {
     let render;

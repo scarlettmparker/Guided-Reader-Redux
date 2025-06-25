@@ -94,7 +94,7 @@ export function setupRoutes(app, vite) {
           pageName,
           user,
         },
-        res
+        res,
       );
     } catch (e) {
       console.error("Error during route handling:", e);

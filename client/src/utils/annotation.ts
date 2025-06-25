@@ -50,7 +50,7 @@ export function getTextIdFromQuery(): number | null {
  */
 export function updateQueryParams(
   selectedTextId: number | null,
-  selectedAnnotation: Annotation | null
+  selectedAnnotation: Annotation | null,
 ) {
   const location = getLocation();
   const params = new URLSearchParams(location.search);
@@ -136,7 +136,7 @@ function processTextNode(
   parts: string[],
   annotations: Annotation[],
   textNode: string,
-  startOffset: number
+  startOffset: number,
 ) {
   let currentOffset = startOffset;
   let lastAnnotatedIndex = 0;
@@ -151,26 +151,26 @@ function processTextNode(
       const overlapStart = Math.max(annotation.start, currentOffset);
       const overlapEnd = Math.min(
         annotation.end,
-        currentOffset + textNode.length
+        currentOffset + textNode.length,
       );
       const unannotatedText = textNode.slice(
         lastAnnotatedIndex,
-        overlapStart - currentOffset
+        overlapStart - currentOffset,
       );
 
       if (unannotatedText) {
         parts.push(
-          `<span id="plain-text-${plainTextCounter++}">${unannotatedText}</span>`
+          `<span id="plain-text-${plainTextCounter++}">${unannotatedText}</span>`,
         );
       }
 
       const annotatedText = textNode.slice(
         overlapStart - currentOffset,
-        overlapEnd - currentOffset
+        overlapEnd - currentOffset,
       );
       if (annotatedText) {
         parts.push(
-          `<span id="annotated-text-${annotation.id}" class="${styles.annotated_text}">${annotatedText}</span>`
+          `<span id="annotated-text-${annotation.id}" class="${styles.annotated_text}">${annotatedText}</span>`,
         );
       }
 
@@ -183,7 +183,7 @@ function processTextNode(
     const remainingText = textNode.slice(lastAnnotatedIndex);
     if (remainingText) {
       parts.push(
-        `<span id="plain-text-${plainTextCounter++}">${remainingText}</span>`
+        `<span id="plain-text-${plainTextCounter++}">${remainingText}</span>`,
       );
     }
   }
@@ -198,7 +198,7 @@ function processTextNode(
 function getAttributes(element: HTMLElement): string {
   return Array.from(element.attributes).reduce(
     (attrs, attr) => `${attrs} ${attr.name}="${attr.value}"`,
-    ""
+    "",
   );
 }
 
@@ -217,7 +217,7 @@ function processNode(
   lastIndex: number,
   parts: string[],
   annotations: Annotation[],
-  node: Node
+  node: Node,
 ) {
   if (node.nodeType === Node.TEXT_NODE) {
     const textNode = node.textContent || "";
@@ -268,7 +268,7 @@ export function renderAnnotatedText(text: TextType): string {
 export const handleAnnotationClick = (
   event: MouseEvent,
   setSelectedAnnotation: (annotation: Annotation | null) => void,
-  annotations: Annotation[]
+  annotations: Annotation[],
 ) => {
   const target = event.target as HTMLElement;
   if (target.id.startsWith("annotated-text-")) {

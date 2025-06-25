@@ -9,14 +9,14 @@ const routes: RouteObject[] = [
     element: <Index />,
   },
   {
-    path: '/login',
-    element: <Login />
+    path: "/login",
+    element: <Login />,
   },
   // Catch-all 404 route
   {
-    path: '*',
-    element: <NotFound />
-  }
+    path: "*",
+    element: <NotFound />,
+  },
 ];
 
 export const Router = () => {

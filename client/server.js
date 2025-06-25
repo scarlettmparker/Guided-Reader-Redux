@@ -6,7 +6,13 @@
 import express from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
-import { port, base, isProduction, backendHost, backendPort } from "./config.js";
+import {
+  port,
+  base,
+  isProduction,
+  backendHost,
+  backendPort,
+} from "./config.js";
 import { setupRoutes } from "./routes/index.js";
 
 const app = express();
@@ -47,7 +53,7 @@ if (!isProduction) {
       changeOrigin: true,
       pathRewrite: { "^/api": "" },
       secure: false,
-    })
+    }),
   );
 }
 

@@ -1,9 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 interface UserData {
   username: string;
@@ -22,7 +17,10 @@ interface UserProviderProps {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export function UserProvider({ children, initialUser = null }: UserProviderProps) {
+export function UserProvider({
+  children,
+  initialUser = null,
+}: UserProviderProps) {
   const [user, setUser] = useState<UserData | null>(initialUser);
 
   return (

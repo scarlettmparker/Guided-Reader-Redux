@@ -1,4 +1,4 @@
-import styles from './input.module.css';
+import styles from "./input.module.css";
 
 interface InputProps {
   className?: string;
@@ -10,7 +10,7 @@ interface InputProps {
 
 /**
  * Styled input box component.
- * 
+ *
  * @param placeholder Placeholder value
  * @param className Optional styling for input box
  */
@@ -19,7 +19,7 @@ const Input: React.FC<InputProps> = ({
   className = "",
   type,
   value,
-  setValue
+  setValue,
 }) => {
   return (
     <input
@@ -30,6 +30,6 @@ const Input: React.FC<InputProps> = ({
       type={type}
     />
   );
-}
+};
 
 export default Input;

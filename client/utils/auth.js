@@ -37,11 +37,13 @@ export async function getUser(req) {
           const userData = await userRes.json();
           user = userData.message || null;
         } else {
-          console.warn("Backend /user did not return JSON. Skipping user parse.");
+          console.warn(
+            "Backend /user did not return JSON. Skipping user parse.",
+          );
         }
       } else {
         console.warn(
-          `Backend user fetch failed with status: ${userRes.status}`
+          `Backend user fetch failed with status: ${userRes.status}`,
         );
       }
     } catch (e) {
@@ -68,7 +70,7 @@ export async function loginUser(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-      }
+      },
     );
 
     const data = await backendRes.json();
