@@ -21,7 +21,10 @@ const Navbar: React.FC = () => {
     <Card className={styles.navbar}>
       <CardHeader className={styles.navbar_header}>
         {user && (
-          <div className={styles.navbar_user}>
+          <div
+            className={styles.navbar_user}
+            onClick={() => navigate(`/user/${user.id}`)}
+          >
             <ProfilePicture avatar={user.avatar} discord_id={user.discord_id} />
             <span className={styles.navbar_username}>{user.username}</span>
           </div>

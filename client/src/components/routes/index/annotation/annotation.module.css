@@ -8,6 +8,12 @@
 .annotation_header {
   align-items: center;
   color: var(--text);
+  width: fit-content;
+}
+
+.annotation_link {
+  display: block;
+  width: fit-content;
 }
 
 .annotation_link,
@@ -24,9 +30,11 @@
   transition: var(--color-transition), background-color 0.2s ease-in-out;
 }
 
-.username:hover {
-  color: var(--link);
-  background-color: var(--modal-hover);
+.annotation_header:hover {
+  .username {
+    color: var(--link);
+    background-color: var(--modal-hover);
+  }
 }
 
 .annotation_date {

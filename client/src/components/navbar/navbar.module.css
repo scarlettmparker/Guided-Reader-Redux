@@ -33,13 +33,27 @@
 .navbar_user {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 4px;
+}
+
+.navbar_username {
+  padding: 5px 10px;
+  border-radius: var(--border-rad-sm);
+  transition: var(--background-transition), var(--color-transition);
+  color: var(--text);
+}
+
+.navbar_user:hover {
+  .navbar_username {
+    color: var(--link);
+    background-color: var(--modal-hover);
+  }
 }
 
 .navbar_login {
   padding: 5px 10px;
   border-radius: var(--border-rad-sm);
-  transition: background-color 0.2s ease-in-out;
+  transition: var(--background-transition);
 }
 
 .navbar_login:hover {

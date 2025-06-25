@@ -48,6 +48,7 @@
 
   /* animations */
   --color-transition: color 0.2s ease-in-out;
+  --background-transition: background-color 0.2s ease-in-out;
 
   /* misc */
   --max-background-width: 960px;
