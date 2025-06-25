@@ -692,7 +692,7 @@ public:
       }
 
       std::string code = json_request["code"].get<std::string>();
-      std::string token_response = make_discord_token_request(code, READER_DISCORD_REDIRECT_LINK_URI);
+      std::string token_response = make_discord_token_request(code, READER_DISCORD_REDIRECT_URI);
 
       if (token_response.empty())
       {

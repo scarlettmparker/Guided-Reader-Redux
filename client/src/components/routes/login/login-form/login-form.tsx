@@ -96,6 +96,9 @@ const LoginForm: React.FC<LoginFormProps> = () => {
             variant="light"
             onMouseOver={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
+            onClick={() => {
+              window.location.href = import.meta.env.VITE_DISCORD_REDIRECT_URI ?? "";
+            }}
           >
             <Icon src={"assets/login/icons/discord.png"} hovered={hovered} />
             <span>{t("form.footer.discord")}</span>

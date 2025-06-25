@@ -4,7 +4,12 @@
  */
 
 import express from "express";
-import { getUser, loginUser, logoutUser } from "../utils/auth.js";
+import {
+  getUser,
+  loginUser,
+  logoutUser,
+  handleDiscordAuth,
+} from "../utils/auth.js";
 import { renderApp } from "../utils/ssr.js";
 import { base, isProduction } from "../config.js";
 
@@ -45,6 +50,8 @@ export function setupRoutes(app, vite) {
     await logoutUser(req, res);
   });
 
+  app.get("/discord", handleDiscordAuth);
+
   // Catch-all for unmatched /api routes (prevents infinite loops)
   app.all("/api/*", (_, res) => {
     res.status(404).json({ error: "API route not found" });
@@ -76,7 +83,7 @@ export function setupRoutes(app, vite) {
     const pageName = urlPath.split("/")[1] || "home";
 
     // List of known routes (update as needed)
-    const routes = ["", "home", "login"];
+    const routes = ["", "home", "login", "discord"];
     const isRoute = routes.includes(pageName);
 
     let user = null;
@@ -94,7 +101,7 @@ export function setupRoutes(app, vite) {
           pageName,
           user,
         },
-        res,
+        res
       );
     } catch (e) {
       console.error("Error during route handling:", e);

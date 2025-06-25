@@ -38,12 +38,12 @@ export async function getUser(req) {
           user = userData.message || null;
         } else {
           console.warn(
-            "Backend /user did not return JSON. Skipping user parse.",
+            "Backend /user did not return JSON. Skipping user parse."
           );
         }
       } else {
         console.warn(
-          `Backend user fetch failed with status: ${userRes.status}`,
+          `Backend user fetch failed with status: ${userRes.status}`
         );
       }
     } catch (e) {
@@ -51,6 +51,46 @@ export async function getUser(req) {
     }
   }
   return user;
+}
+
+/**
+ * Extracts sessionId from a Set-Cookie header and sets it on the response.
+ * Optionally sets req.cookies.sessionId and fetches the user.
+ *
+ * @param {string | null} setCookieHeader
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {boolean} fetchUser - Whether to call getUser and return it.
+ * @returns {Promise<Object|null>} - The user object or null
+ */
+async function handleSessionFromCookie(
+  setCookieHeader,
+  req,
+  res,
+  fetchUser = false
+) {
+  let sessionId = null;
+
+  if (setCookieHeader) {
+    setCookieHeader.split(",").forEach((cookieString) => {
+      const parts = cookieString.split(";");
+      const [name, value] = parts[0].split("=");
+      if (name.trim() === "sessionId") {
+        sessionId = value.trim();
+        res.setHeader("Set-Cookie", cookieString);
+      }
+    });
+  }
+
+  if (sessionId) {
+    req.cookies.sessionId = sessionId;
+    if (fetchUser) {
+      const user = await getUser(req);
+      return user;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -70,7 +110,7 @@ export async function loginUser(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-      },
+      }
     );
 
     const data = await backendRes.json();
@@ -78,34 +118,50 @@ export async function loginUser(req, res) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Get sessionId from Set-Cookie header and set it on the client
     const setCookieHeader = backendRes.headers.get("set-cookie");
-    if (setCookieHeader) {
-      // Parse individual cookies if multiple are present
-      setCookieHeader.split(",").forEach((cookieString) => {
-        const parts = cookieString.split(";");
-        const [nameValue] = parts[0].split("=");
-        if (nameValue === "sessionId") {
-          // Look for sessionId specifically
-          res.setHeader("Set-Cookie", cookieString);
-        }
-      });
-    }
-
-    // Fetch user data from backend with the new session (optional, but good for immediate client update)
-    let user = null;
-    const sessionIdMatch = setCookieHeader
-      ? setCookieHeader.match(/sessionId=([^;]+)/)
-      : null;
-    if (sessionIdMatch) {
-      req.cookies.sessionId = sessionIdMatch[1];
-      user = await getUser(req);
-    }
+    const user = await handleSessionFromCookie(setCookieHeader, req, res, true);
 
     res.json({ message: "Login successful", user });
   } catch (e) {
     console.error("Login error:", e);
     res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+/**
+ * Handles the Discord OAuth code exchange with the backend.
+ * Redirects to `/` on success or `/login` on failure.
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+export async function handleDiscordAuth(req, res) {
+  const code = req.query.code;
+  if (!code) return res.redirect("/login");
+
+  try {
+    const response = await fetch(
+      `http://${backendHost}:${backendPort}/discord-auth`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      }
+    );
+
+    if (!response.ok) {
+      const data = await response.json();
+      console.warn("Error details:", data);
+      return res.redirect("/login");
+    }
+
+    const setCookieHeader = response.headers.get("set-cookie");
+    await handleSessionFromCookie(setCookieHeader, req, res, false);
+
+    return res.redirect("/?success=true");
+  } catch (e) {
+    console.error("Error during Discord auth:", e);
+    return res.redirect("/login");
   }
 }
 
