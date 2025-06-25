@@ -48,6 +48,10 @@ const Reader: React.FC = () => {
     loading: true,
   });
 
+  /**
+   * Handle closing the annotation list.
+   * This clears the selected annotation and updates the URL to remove the annotation_id query parameter.
+   */
   const handleAnnotationClose = () => {
     setSelectedAnnotation(null);
     const params = new URLSearchParams(location.search);
