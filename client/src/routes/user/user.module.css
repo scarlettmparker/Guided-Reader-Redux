@@ -1,0 +1,55 @@
+.card_wrapper {
+  padding: 5rem 2rem;
+  width: calc(100% - 4rem);
+  height: calc(100% - 10rem);
+  display: flex;
+  justify-content: center;
+}
+
+.user_card {
+  width: fit-content;
+  position: relative;
+}
+
+.user_header {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.user_detail {
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.user_brief {
+  flex-grow: 1;
+}
+
+.user_name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.user_info {
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.user_footer {
+  justify-content: space-between;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  margin-top: auto;
+  flex-wrap: wrap;
+  gap: 0px;
+  color: var(--text-primary);
+}
+
+.annotation_count {
+  padding-right: 10px;
+}

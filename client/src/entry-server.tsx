@@ -57,8 +57,7 @@ export async function render({
 
   // Patch useRoutes to detect if a route matched
   // (react-router-dom v6+ sets a context property for this)
-  // We'll use a workaround: if pageName is not a known route, treat as 404
-  const knownRoutes = ["home", "login", ""]; // add more if needed
+  const knownRoutes = ["home", "login", "user"];
   if (!knownRoutes.includes(pageName)) {
     didMatch = false;
   } else {

@@ -41,7 +41,7 @@ const Annotation: React.FC<AnnotationProps> = (props) => {
 
   return (
     <Card className={styles.annotation}>
-      <a href={`/user/${author.discord_id}`} className={styles.annotation_link}>
+      <a href={`/user/${author.id}`} className={styles.annotation_link}>
         <CardHeader className={styles.annotation_header}>
           <ProfilePicture
             avatar={author.avatar}

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { UserController } from "~/utils/api";
 
-import { Card, CardHeader } from "~/components/card";
-import { CardBody, CardSubHeader } from "~/components/card/card";
+import { Card, CardSubHeader, CardBody, CardHeader } from "~/components/card";
 import { useTranslation } from "react-i18next";
 
 import Input from "~/components/input";
@@ -97,7 +96,8 @@ const LoginForm: React.FC<LoginFormProps> = () => {
             onMouseOver={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             onClick={() => {
-              window.location.href = import.meta.env.VITE_DISCORD_REDIRECT_URI ?? "";
+              window.location.href =
+                import.meta.env.VITE_DISCORD_REDIRECT_URI ?? "";
             }}
           >
             <Icon src={"assets/login/icons/discord.png"} hovered={hovered} />

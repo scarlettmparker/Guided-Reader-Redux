@@ -1,3 +1,7 @@
 .profile_picture {
   border-radius: 50%;
 }
+
+.profile_picture_large {
+  border-radius: var(--border-rad-sm);
+}

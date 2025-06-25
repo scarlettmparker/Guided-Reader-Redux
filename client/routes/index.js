@@ -83,7 +83,7 @@ export function setupRoutes(app, vite) {
     const pageName = urlPath.split("/")[1] || "home";
 
     // List of known routes (update as needed)
-    const routes = ["", "home", "login", "discord"];
+    const routes = ["", "home", "login", "discord", "user", "user/*"];
     const isRoute = routes.includes(pageName);
 
     let user = null;

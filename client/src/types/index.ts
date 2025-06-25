@@ -42,3 +42,20 @@ export type AnnotationResponse = {
   dislikes: number;
   likes: number;
 };
+
+export type UserData  = {
+  annotation_count: number;
+  dislike_count: number;
+  levels: string[];
+  like_count: number;
+  user: UserDetails;
+}
+
+type UserDetails = {
+  avatar: string;
+  discord_id: string;
+  discord_status: boolean;
+  id: number;
+  nickname: string;
+  username: string;
+};

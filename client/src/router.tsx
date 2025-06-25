@@ -2,6 +2,7 @@ import { RouteObject, useRoutes } from "react-router-dom";
 import Index from "~/routes/index";
 import Login from "~/routes/login";
 import NotFound from "~/routes/not-found/not-found";
+import User from "./routes/user";
 
 const routes: RouteObject[] = [
   {
@@ -12,7 +13,10 @@ const routes: RouteObject[] = [
     path: "/login",
     element: <Login />,
   },
-  // Catch-all 404 route
+  {
+    path: "/user/:userId",
+    element: <User />,
+  },
   {
     path: "*",
     element: <NotFound />,
