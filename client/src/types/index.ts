@@ -43,13 +43,13 @@ export type AnnotationResponse = {
   likes: number;
 };
 
-export type UserData  = {
+export type UserData = {
   annotation_count: number;
   dislike_count: number;
   levels: string[];
   like_count: number;
   user: UserDetails;
-}
+};
 
 type UserDetails = {
   avatar: string;

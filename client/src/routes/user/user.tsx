@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardHeader, CardSubHeader } from "~/components/card";
 import { UserData } from "~/types";
@@ -8,8 +8,8 @@ import ProfilePicture from "~/components/profile-picture";
 import styles from "./user.module.css";
 
 const levelColors: Record<string, string> = {
-  "352001527780474881": "#e6e061",
-  "350483752490631181": "#4b847c",
+  "352001527780474881": "",
+  "350483752490631181": "#1528d6",
   "351117824300679169": "#1b9e52",
   "351117954974482435": "#179992",
   "350485376109903882": "#ba7011",
@@ -31,7 +31,11 @@ const levelMap: Record<string, string> = {
 
 const User: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
+  const userHeaderRef = useRef<HTMLDivElement>(null);
+
   const [user, setUser] = useState<UserData | null>(null);
+  const [wrapped, setWrapped] = useState(false);
+  const [wrapWidth, setWrapWidth] = useState<number | null>(null);
 
   /**
    * Fetches user data from the API based on the userId from the URL parameters.
@@ -45,6 +49,47 @@ const User: React.FC = () => {
     }
   };
 
+  /**
+   *
+   */
+  const checkWrap = () => {
+    if (userHeaderRef.current) {
+      const profilePicture = userHeaderRef.current.querySelector(
+        `.${styles.user_profile_picture}`,
+      ) as HTMLElement;
+      const userDetail = userHeaderRef.current.querySelector(
+        `.${styles.user_detail}`,
+      ) as HTMLElement;
+
+      if (profilePicture && userDetail) {
+        const profilePictureRect = profilePicture.getBoundingClientRect();
+        const userDetailRect = userDetail.getBoundingClientRect();
+        const isWrapped = userDetailRect.top > profilePictureRect.top;
+
+        // Store the window width when wrap occurs for the first time
+        if (isWrapped && !wrapped) {
+          setWrapWidth(window.innerWidth);
+        }
+
+        // Update wrapped state based on current window width and stored wrap width
+        if (wrapWidth !== null) {
+          setWrapped(window.innerWidth <= wrapWidth);
+        } else {
+          setWrapped(isWrapped);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkWrap();
+
+    window.addEventListener("resize", checkWrap);
+    return () => {
+      window.removeEventListener("resize", checkWrap);
+    };
+  }, [user, wrapped, wrapWidth]);
+
   useEffect(() => {
     if (!userId) {
       window.location.href = "/";
@@ -56,14 +101,23 @@ const User: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  const levelId = user.levels.find((lvl) => lvl in levelMap);
-  const levelName = levelId ? levelMap[levelId] : null;
-  const levelColour = levelId ? levelColors[levelId] : "";
+  let levelId, levelName, levelColour;
+
+  if (user.levels) {
+    levelId = user.levels.find((lvl) => lvl in levelMap);
+    levelName = levelId ? levelMap[levelId] : null;
+    levelColour = levelId ? levelColors[levelId] : "";
+  }
 
   return (
     <div className={styles.card_wrapper}>
       <Card className={styles.user_card}>
-        <CardHeader className={styles.user_header}>
+        <CardHeader
+          ref={userHeaderRef}
+          className={`${styles.user_header} ${
+            wrapped ? styles.flex_wrap_active : ""
+          }`}
+        >
           <ProfilePicture
             className={styles.user_profile_picture}
             avatar={user.user.avatar}

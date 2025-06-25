@@ -38,12 +38,12 @@ export async function getUser(req) {
           user = userData.message || null;
         } else {
           console.warn(
-            "Backend /user did not return JSON. Skipping user parse."
+            "Backend /user did not return JSON. Skipping user parse.",
           );
         }
       } else {
         console.warn(
-          `Backend user fetch failed with status: ${userRes.status}`
+          `Backend user fetch failed with status: ${userRes.status}`,
         );
       }
     } catch (e) {
@@ -67,7 +67,7 @@ async function handleSessionFromCookie(
   setCookieHeader,
   req,
   res,
-  fetchUser = false
+  fetchUser = false,
 ) {
   let sessionId = null;
 
@@ -110,7 +110,7 @@ export async function loginUser(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-      }
+      },
     );
 
     const data = await backendRes.json();
@@ -146,7 +146,7 @@ export async function handleDiscordAuth(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
-      }
+      },
     );
 
     if (!response.ok) {

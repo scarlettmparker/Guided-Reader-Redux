@@ -11,15 +11,30 @@
   position: relative;
 }
 
+.user_profile_picture {
+  width: 128px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  flex: 0 0 128px;
+}
+
 .user_header {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 1rem;
 }
+
+.flex_wrap_active .user_profile_picture {
+  width: 100%;
+  flex: 1 0 100%;
+}
+
 
 .user_detail {
   padding: 6px 0;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }

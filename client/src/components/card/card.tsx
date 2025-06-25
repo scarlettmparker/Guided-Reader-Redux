@@ -15,12 +15,15 @@ interface CardHeaderProps {
   className?: string;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  children,
-  className = "",
-}) => {
-  return <div className={`${styles.card_header} ${className}`}>{children}</div>;
-};
+export const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
+  ({ children, className = "" }, ref) => {
+    return (
+      <div ref={ref} className={`${styles.card_header} ${className}`}>
+        {children}
+      </div>
+    );
+  },
+);
 
 interface CardSubHeaderProps {
   children?: React.ReactNode;
