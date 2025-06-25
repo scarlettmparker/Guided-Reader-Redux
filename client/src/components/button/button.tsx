@@ -7,6 +7,7 @@ interface ButtonProps {
   onClick?: () => void;
   onMouseOver?: () => void;
   onMouseLeave?: () => void;
+  disabled?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -15,7 +16,8 @@ const Button: React.FC<ButtonProps> = ({
   variant = "dark",
   onClick,
   onMouseOver,
-  onMouseLeave
+  onMouseLeave,
+  disabled = false
 }) => {
   const handleMouseUp = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.currentTarget.blur();
@@ -32,6 +34,7 @@ const Button: React.FC<ButtonProps> = ({
       onMouseUp={(e) => {
         handleMouseUp(e);
       }}
+      disabled={disabled}
     >
       {children}
     </button>

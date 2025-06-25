@@ -7,7 +7,11 @@
     "body": {
       "username": "Όνομα χρήστη",
       "password": "Κωδικός πρόσβασης",
-      "sign-in": "Σύνδεση"
+      "sign-in": "Σύνδεση",
+      "error": {
+        "username-error": "βάλε το όνομα χρήστη",
+        "password-error": "βάλε τον κωδικό πρόσβασης"
+      }
     },
     "footer": {
       "continue": "Ή ΣΥΝΕΧΙΣΕ ΜΕ",

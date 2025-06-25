@@ -20,7 +20,7 @@ async function sleep(ms: number) {
  */
 export async function getFetch<T>(
   url: string,
-  options: FetchOptions = {},
+  options: FetchOptions = {}
 ): Promise<T> {
   const { retries = MAX_RETRIES, ...fetchOptions } = options;
   let lastError: Error | null = null;
@@ -60,7 +60,7 @@ export async function getFetch<T>(
 export const TitlesController = {
   getTitles: (sort = 0, page = 0, pageSize = 336) =>
     getFetch<{ message: TextListItemType[] }>(
-      `/api/titles?sort=${sort}&page=${page}&page_size=${pageSize}`,
+      `/api/titles?sort=${sort}&page=${page}&page_size=${pageSize}`
     ),
 };
 
@@ -68,10 +68,10 @@ export const TextController = {
   getText: (
     textObjectId: number,
     language: string = "GR",
-    type: string = "all",
+    type: string = "all"
   ) =>
     getFetch<{ message: string }>(
-      `/api/text?text_object_id=${textObjectId}&language=${language}&type=${type}`,
+      `/api/text?text_object_id=${textObjectId}&language=${language}&type=${type}`
     ),
 };
 
@@ -79,6 +79,20 @@ export const AnnotationController = {
   getAnnotations: (textObjectId: number, start: number, end: number) =>
     // TODO: annotation endpoint needs text object ID and language, not text ID alone
     getFetch<{ message: AnnotationResponse[] }>(
-      `/api/annotation?text_id=${textObjectId}&start=${start}&end=${end}`,
+      `/api/annotation?text_id=${textObjectId}&start=${start}&end=${end}`
     ),
+};
+
+export const UserController = {
+  login: (username: string, password: string) =>
+    getFetch<{ message: any }>("/api/user", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+      headers: { "Content-Type": "application/json" },
+      // No retries for login by default
+      retries: 1,
+    }),
+  get: () =>
+    getFetch<{ message: any }>("/api/user", { method: "GET", retries: 1 }),
+  logout: () => getFetch<null>("/api/logout", { method: "POST", retries: 1 }),
 };
