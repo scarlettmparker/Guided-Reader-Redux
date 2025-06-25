@@ -1,10 +1,11 @@
 import { Card, CardHeader } from "~/components/card";
 import { useLocation } from "react-router-dom";
 import { useUser } from "~/contexts/user-context";
-import ProfilePicture from "../profile-picture";
-import styles from "./navbar.module.css";
 import { UserController } from "~/utils/api";
 import { useNavigate } from "react-router-dom";
+import ProfilePicture from "../profile-picture";
+import styles from "./navbar.module.css";
+
 
 const Navbar: React.FC = () => {
   const location = useLocation();

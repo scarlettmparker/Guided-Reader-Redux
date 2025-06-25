@@ -45,6 +45,11 @@ export function setupRoutes(app, vite) {
     await logoutUser(req, res);
   });
 
+  // Catch-all for unmatched /api routes (prevents infinite loops)
+  app.all("/api/*", (_, res) => {
+    res.status(404).json({ error: "API route not found" });
+  });
+
   /**
    * Catch-all route for server-side rendering of pages.
    * This route handles all GET requests not otherwise handled by static file serving or specific API routes.
@@ -61,7 +66,6 @@ export function setupRoutes(app, vite) {
       return next();
     }
 
-    let user = await getUser(req);
     let url = req.originalUrl.replace(base, "");
     if (!url.startsWith("/")) url = "/" + url;
 
@@ -70,6 +74,15 @@ export function setupRoutes(app, vite) {
     const locale = langHeader.split(",")[0] || "en";
     const urlPath = url.split("?")[0];
     const pageName = urlPath.split("/")[1] || "home";
+
+    // List of known routes (update as needed)
+    const routes = ["", "home", "login"];
+    const isRoute = routes.includes(pageName);
+
+    let user = null;
+    if (isRoute) {
+      user = await getUser(req);
+    }
 
     try {
       await renderApp(

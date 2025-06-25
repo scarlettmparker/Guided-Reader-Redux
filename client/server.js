@@ -39,7 +39,6 @@ if (!isProduction) {
   app.use(base, sirv("./dist/client", { extensions: ["html", "js", "css"] }));
   app.use("/locales", express.static(path.resolve("./locales")));
 
-
   // Proxy API requests to the backend server
   app.use(
     "/api",

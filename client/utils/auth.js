@@ -32,8 +32,13 @@ export async function getUser(req) {
         },
       });
       if (userRes.ok) {
-        const userData = await userRes.json();
-        user = userData.message || null;
+        const contentType = userRes.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          const userData = await userRes.json();
+          user = userData.message || null;
+        } else {
+          console.warn("Backend /user did not return JSON. Skipping user parse.");
+        }
       } else {
         console.warn(
           `Backend user fetch failed with status: ${userRes.status}`
