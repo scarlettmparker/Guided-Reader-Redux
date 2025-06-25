@@ -1,6 +1,8 @@
 #include "api.hpp"
 
 using namespace postgres;
+using namespace utils;
+
 class VoteHandler : public RequestHandler
 {
 private:
@@ -12,13 +14,12 @@ private:
    * the user ID that performed the interaction.
    *
    * @param annotation_id ID of the annotation to select interactions for.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON of interaction data.
    */
-  nlohmann::json select_interaction_data(int annotation_id, bool verbose)
+  nlohmann::json select_interaction_data(int annotation_id)
   {
+    Logger::instance().debug("Selecting interaction data for annotation_id=" + std::to_string(annotation_id));
     nlohmann::json vote_info = nlohmann::json::array();
-
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
@@ -31,25 +32,23 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.empty() || r[0][0].is_null())
       {
-        verbose &&std::cout << "Interactions not found" << std::endl;
+        utils::Logger::instance().debug("Interactions not found");
         return nlohmann::json();
       }
-
       vote_info = nlohmann::json::parse(r[0][0].as<std::string>());
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return vote_info;
   }
@@ -60,10 +59,9 @@ private:
    *
    * @param annotation_id ID of the annotation to select the interaction for.
    * @param user_id ID of the user to select the interaction for.
-   * @param verbose Whether to print messages to stdout.
    * @return Interaction type (LIKE or DISLIKE) if found, empty string otherwise.
    */
-  std::string select_annotation_interaction_type(int annotation_id, int user_id, bool verbose)
+  std::string select_annotation_interaction_type(int annotation_id, int user_id)
   {
     try
     {
@@ -77,24 +75,23 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.empty())
       {
-        verbose &&std::cout << "Annotation interaction not found" << std::endl;
+        utils::Logger::instance().debug("Annotation interaction not found");
         return "";
       }
       return r[0][0].as<std::string>();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return "";
   }
@@ -105,11 +102,11 @@ private:
    * @param annotation_id ID of the annotation to insert the interaction for.
    * @param user_id ID of the user to insert the interaction for.
    * @param interaction_type Type of interaction (LIKE or DISLIKE).
-   * @param verbose Whether to print messages to stdout.
    * @return true if the interaction was inserted, false otherwise.
    */
-  bool insert_interaction(int annotation_id, int user_id, std::string interaction_type, bool verbose)
+  bool insert_interaction(int annotation_id, int user_id, std::string interaction_type)
   {
+    Logger::instance().debug("Inserting interaction for annotation_id=" + std::to_string(annotation_id) + ", user_id=" + std::to_string(user_id));
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
@@ -122,24 +119,23 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.affected_rows() == 0)
       {
-        verbose &&std::cout << "Failed to insert interaction" << std::endl;
+        utils::Logger::instance().error("Failed to insert interaction");
         return false;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -149,11 +145,11 @@ private:
    *
    * @param annotation_id ID of the annotation to delete the interaction for.
    * @param user_id ID of the user to delete the interaction for.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the interaction was deleted, false otherwise.
    */
-  bool delete_interaction(int annotation_id, int user_id, bool verbose)
+  bool delete_interaction(int annotation_id, int user_id)
   {
+    Logger::instance().debug("Deleting interaction for annotation_id=" + std::to_string(annotation_id) + ", user_id=" + std::to_string(user_id));
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
@@ -166,24 +162,23 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.affected_rows() == 0)
       {
-        verbose &&std::cout << "Interaction not found" << std::endl;
+        utils::Logger::instance().debug("Interaction not found");
         return false;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -200,12 +195,14 @@ public:
 
   http::response<http::string_body> handle_request(const http::request<http::string_body> &req, const std::string &ip_address)
   {
+    Logger::instance().info("Vote endpoint called: " + std::string(req.method_string()));
     if (middleware::rate_limited(ip_address, "/vote", 5))
     {
       return request::make_too_many_requests_response("Too many requests", req);
     }
     if (req.method() == http::verb::get)
     {
+      Logger::instance().debug("GET vote details requested");
       /**
        * GET vote details for a specific annotation.
        */
@@ -229,16 +226,19 @@ public:
         return request::make_bad_request_response("Number out of range for annotation_id", req);
       }
 
-      nlohmann::json vote_info = select_interaction_data(annotation_id, false);
+      nlohmann::json vote_info = select_interaction_data(annotation_id);
       if (vote_info.empty())
       {
+        Logger::instance().info("No interactions found for annotation_id=" + std::to_string(annotation_id));
         return request::make_ok_request_response("No interactions found", req);
       }
 
+      Logger::instance().info("Vote data returned for annotation_id=" + std::to_string(annotation_id));
       return request::make_json_request_response(vote_info, req);
     }
     else if (req.method() == http::verb::post)
     {
+      Logger::instance().debug("POST vote requested");
       /**
        * POST a new vote.
        */
@@ -278,12 +278,12 @@ public:
       {
         return request::make_unauthorized_response("Session ID not found", req);
       }
-      if (!request::validate_session(std::string(session_id), false))
+      if (!request::validate_session(std::string(session_id)))
       {
         return request::make_unauthorized_response("Invalid session ID", req);
       }
 
-      int real_user_id = request::get_user_id_from_session(std::string(session_id), false);
+      int real_user_id = request::get_user_id_from_session(std::string(session_id));
       if (real_user_id == -1)
       {
         return request::make_bad_request_response("User not found", req);
@@ -292,25 +292,27 @@ public:
       {
         return request::make_bad_request_response("User ID mismatch. This incident has been reported", req);
       }
-      if (!middleware::user_accepted_policy(user_id, false))
+      if (!middleware::user_accepted_policy(user_id))
       {
         return request::make_unauthorized_response("User has not accepted the privacy policy", req);
       }
 
-      std::string interaction_type = select_annotation_interaction_type(annotation_id, user_id, false);
+      std::string interaction_type = select_annotation_interaction_type(annotation_id, user_id);
       std::string new_interaction_type = interaction == 1 ? "LIKE" : "DISLIKE";
 
       if (interaction_type.empty())
       {
         // Insert the Interaction
-        if (!insert_interaction(annotation_id, user_id, new_interaction_type, false))
+        if (!insert_interaction(annotation_id, user_id, new_interaction_type))
         {
+          Logger::instance().error("Failed to insert interaction for annotation_id=" + std::to_string(annotation_id));
           return request::make_bad_request_response("Failed to insert interaction", req);
         }
+        Logger::instance().info("Interaction inserted for annotation_id=" + std::to_string(annotation_id));
         return request::make_ok_request_response("Interaction inserted", req);
       }
 
-      if (!delete_interaction(annotation_id, user_id, false))
+      if (!delete_interaction(annotation_id, user_id))
       {
         return request::make_bad_request_response("Failed to delete interaction", req);
       }
@@ -320,7 +322,7 @@ public:
       }
 
       // Insert the Interaction
-      if (!insert_interaction(annotation_id, user_id, new_interaction_type, false))
+      if (!insert_interaction(annotation_id, user_id, new_interaction_type))
       {
         return request::make_bad_request_response("Failed to insert interaction", req);
       }
@@ -329,6 +331,7 @@ public:
     }
     else
     {
+      Logger::instance().info("Invalid method for vote endpoint");
       return request::make_bad_request_response("Invalid method", req);
     }
   }

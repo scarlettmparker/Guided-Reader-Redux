@@ -1,6 +1,7 @@
 #include "api.hpp"
 #include "../auth/httpclient.hpp"
 #include "../auth/session.hpp"
+#include "../utils.hpp"
 #include <boost/beast/core.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -8,6 +9,7 @@
 
 namespace beast = boost::beast;
 using namespace postgres;
+using namespace utils;
 
 class DiscordHandler : public RequestHandler
 {
@@ -20,11 +22,11 @@ private:
    * such as getting the user's data and ensuring they are part of the Greek Learning guild.
    *
    * @param code OAuth code from Discord.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON response from Discord.
    */
-  std::string make_discord_token_request(const std::string &code, const std::string redirect_uri, bool verbose)
+  std::string make_discord_token_request(const std::string &code, const std::string redirect_uri)
   {
+    Logger::instance().debug("Requesting Discord token");
     std::string body =
         "client_id=" + std::string(READER_DISCORD_CLIENT_ID) +
         "&client_secret=" + std::string(READER_DISCORD_CLIENT_SECRET) +
@@ -40,7 +42,7 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Failed to make Discord token request: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Failed to make Discord token request: ") + e.what());
       return "";
     }
   }
@@ -50,7 +52,7 @@ private:
    * username, avatar, and nickname. This data is used to create a new user in the database,
    * or to verify the user's identity if they are already registered.
    */
-  std::string get_discord_user_data(const std::string &access_token, bool verbose)
+  std::string get_discord_user_data(const std::string &access_token)
   {
     try
     {
@@ -60,7 +62,7 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Failed to get Discord user data: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Failed to get Discord user data: ") + e.what());
       return "";
     }
   }
@@ -70,10 +72,9 @@ private:
    * This is used to check if the user is part of the Greek Learning guild.
    *
    * @param access_token Access token to use for the request.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON response from Discord.
    */
-  std::string make_discord_guild_request(const std::string &access_token, bool verbose)
+  std::string make_discord_guild_request(const std::string &access_token)
   {
     try
     {
@@ -83,7 +84,7 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Failed to get Discord guild data: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Failed to get Discord guild data: ") + e.what());
       return "";
     }
   }
@@ -93,10 +94,9 @@ private:
    * This is used to check if the user has any proficiency roles.
    *
    * @param access_token Access token to use for the request.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON response from Discord.
    */
-  std::string get_user_roles(const std::string &access_token, bool verbose)
+  std::string get_user_roles(const std::string &access_token)
   {
     std::string ROLES_URL = std::string(READER_DISCORD_USER_GUILDS_URL) + "/" + READER_GREEK_LEARNING_GUILD + "/member";
     try
@@ -107,7 +107,7 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Failed to get Discord user roles: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Failed to get Discord user roles: ") + e.what());
       return "";
     }
   }
@@ -121,7 +121,7 @@ private:
    */
   http::response<http::string_body> verify_guild_membership(const http::request<http::string_body> &req, const std::string &access_token)
   {
-    std::string guild_response = make_discord_guild_request(access_token, false);
+    std::string guild_response = make_discord_guild_request(access_token);
     if (guild_response.empty())
     {
       return request::make_bad_request_response("Failed to get Discord guild data", req);
@@ -210,7 +210,7 @@ private:
    */
   http::response<http::string_body> verify_user_guild_roles(const http::request<http::string_body> &req, int user_id, const std::string &access_token)
   {
-    std::string user_roles = get_user_roles(access_token, false);
+    std::string user_roles = get_user_roles(access_token);
     if (user_roles.empty())
     {
       return request::make_bad_request_response("Failed to get Discord user roles", req);
@@ -236,7 +236,7 @@ private:
     {
       return request::make_bad_request_response("User has no roles", req);
     }
-    if (!update_user_roles(user_id, roles, false))
+    if (!update_user_roles(user_id, roles))
     {
       return request::make_bad_request_response("Failed to update user roles", req);
     }
@@ -244,7 +244,7 @@ private:
     std::string avatar = get_avatar(roles_json);
     std::string nickname = get_nickname(roles_json);
 
-    if (!update_user_data(user_id, avatar, nickname, false))
+    if (!update_user_data(user_id, avatar, nickname))
     {
       return request::make_bad_request_response("Failed to update user data", req);
     }
@@ -259,15 +259,13 @@ private:
    *
    * @param user_id ID of the user to update.
    * @param roles List of role IDs to update.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the roles were updated, false otherwise.
    */
-  bool update_user_roles(int user_id, const std::vector<std::string> &roles, bool verbose)
+  bool update_user_roles(int user_id, const std::vector<std::string> &roles)
   {
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
-
       std::ostringstream oss;
       oss << "{";
       for (size_t i = 0; i < roles.size(); ++i)
@@ -277,7 +275,6 @@ private:
         oss << roles[i];
       }
       oss << "}";
-
       pqxx::result r = txn.exec_prepared(
           "update_user_roles",
           user_id,
@@ -288,18 +285,18 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -312,10 +309,9 @@ private:
    * @param user_id ID of the user to update.
    * @param avatar Avatar URL to update.
    * @param nickname Nickname to update.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the data was updated, false otherwise.
    */
-  bool update_user_data(int user_id, const std::string &avatar, const std::string &nickname, bool verbose)
+  bool update_user_data(int user_id, const std::string &avatar, const std::string &nickname)
   {
     try
     {
@@ -331,7 +327,7 @@ private:
         }
         catch (const std::exception &e)
         {
-          verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+          Logger::instance().error(std::string("Error committing transaction: ") + e.what());
           throw;
         }
         return true;
@@ -344,11 +340,11 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -358,9 +354,8 @@ private:
    *
    * @param user_id ID of the user to link.
    * @param discord_id Discord ID to link.
-   * @param verbose Whether to print messages to stdout.
    */
-  bool link_user_to_discord(int user_id, const std::string discord_id, bool verbose)
+  bool link_user_to_discord(int user_id, const std::string discord_id)
   {
     try
     {
@@ -374,18 +369,18 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -394,10 +389,9 @@ private:
    * Select the user ID by Discord ID.
    *
    * @param discord_id Discord ID to select.
-   * @param verbose Whether to print messages to stdout.
    * @return ID of the user if found, -1 otherwise.
    */
-  int select_user_id_by_discord_id(const std::string &discord_id, bool verbose)
+  int select_user_id_by_discord_id(const std::string &discord_id)
   {
     try
     {
@@ -410,24 +404,23 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.empty())
       {
-        verbose &&std::cout << "User with Discord ID " << discord_id << " not found" << std::endl;
+        Logger::instance().debug("User with Discord ID " + discord_id + " not found");
         return -1;
       }
       return r[0][0].as<int>();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      Logger::instance().error("Unknown error while executing query");
     }
     return -1;
   }
@@ -439,10 +432,9 @@ private:
    * @param discord_id Discord ID to register.
    * @param username Username to register.
    * @param avatar Avatar URL to register.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the user was registered, false otherwise.
    */
-  bool register_with_discord(const std::string &discord_id, const std::string &username, const std::string &avatar, bool verbose)
+  bool register_with_discord(const std::string &discord_id, const std::string &username, const std::string &avatar)
   {
     try
     {
@@ -457,19 +449,18 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -480,10 +471,9 @@ private:
    *
    * @param user_id ID of the user to validate/invalidate.
    * @param validate Whether to validate or invalidate the user's status.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the status was updated, false otherwise.
    */
-  bool validate_discord_status(int user_id, bool validate, bool verbose)
+  bool validate_discord_status(int user_id, bool validate)
   {
     try
     {
@@ -506,18 +496,18 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      Logger::instance().error("Unknown error while executing query");
     }
     return false;
   }
@@ -534,12 +524,14 @@ public:
 
   http::response<http::string_body> handle_request(const http::request<http::string_body> &req, const std::string &ip_address)
   {
+    Logger::instance().info("Discord endpoint called: " + std::string(req.method_string()));
     if (middleware::rate_limited(ip_address, "/discord", 1))
     {
       return request::make_too_many_requests_response("Too many requests", req);
     }
     if (req.method() == http::verb::post)
     {
+      Logger::instance().debug("POST Discord login/register requested");
       /**
        * Login/Register with Discord account.
        */
@@ -559,7 +551,7 @@ public:
 
       // Attempt to get token from Discord
       std::string code = json_request["code"].get<std::string>();
-      std::string token_response = make_discord_token_request(code, READER_DISCORD_REDIRECT_URI, false);
+      std::string token_response = make_discord_token_request(code, READER_DISCORD_REDIRECT_URI);
 
       if (token_response.empty())
       {
@@ -584,7 +576,7 @@ public:
       std::string token_type = token_json["token_type"].get<std::string>();
 
       // Attempt to get user data from Discord
-      std::string user_data_response = get_discord_user_data(access_token, false);
+      std::string user_data_response = get_discord_user_data(access_token);
       if (user_data_response.empty())
       {
         return request::make_bad_request_response("Failed to get Discord user data", req);
@@ -619,10 +611,10 @@ public:
       }
 
       // Check if Discord id is already linked to an account
-      int user_id = select_user_id_by_discord_id(discord_id, false);
+      int user_id = select_user_id_by_discord_id(discord_id);
       if (user_id == -1)
       {
-        if (!register_with_discord(discord_id, username, avatar, false))
+        if (!register_with_discord(discord_id, username, avatar))
         {
           return request::make_bad_request_response("Failed to register user with Discord", req);
         }
@@ -631,7 +623,7 @@ public:
 
       // Otherwise, login user
       // Make sure to check that the user is in greek learning guild
-      validate_discord_status(user_id, true, false);
+      validate_discord_status(user_id, true);
 
       try
       {
@@ -642,7 +634,7 @@ public:
           {
             return guild_response;
           }
-          validate_discord_status(user_id, false, false);
+          validate_discord_status(user_id, false);
         }
       }
       catch (const std::exception &e)
@@ -661,7 +653,7 @@ public:
           {
             return role_response;
           }
-          validate_discord_status(user_id, false, false);
+          validate_discord_status(user_id, false);
         }
       }
       catch (const std::exception &e)
@@ -671,11 +663,11 @@ public:
       }
 
       // Generate the session to log in the user
-      std::string session_id = session::generate_session_id(false);
+      std::string session_id = session::generate_session_id();
       std::string signed_session_id = session_id + "." + session::generate_hmac(session_id, READER_SECRET_KEY);
       int expires_in = std::stoi(READER_SESSION_EXPIRE_LENGTH);
 
-      if (!session::set_session_id(signed_session_id, user_id, expires_in, ip_address, false))
+      if (!session::set_session_id(signed_session_id, user_id, expires_in, ip_address))
       {
         return request::make_bad_request_response("Failed to set session ID", req);
       }
@@ -683,6 +675,7 @@ public:
     }
     else if (req.method() == http::verb::patch)
     {
+      Logger::instance().debug("PATCH Discord link requested");
       /**
        * Link account with Discord.
        * A lot of this code is the same with POST but we are all for decoupling
@@ -699,7 +692,7 @@ public:
       }
 
       std::string code = json_request["code"].get<std::string>();
-      std::string token_response = make_discord_token_request(code, READER_DISCORD_REDIRECT_LINK_URI, false);
+      std::string token_response = make_discord_token_request(code, READER_DISCORD_REDIRECT_LINK_URI);
 
       if (token_response.empty())
       {
@@ -720,7 +713,7 @@ public:
       std::string token_type = token_json["token_type"].get<std::string>();
 
       // Attempt to get user data from Discord
-      std::string user_data_response = get_discord_user_data(access_token, false);
+      std::string user_data_response = get_discord_user_data(access_token);
       if (user_data_response.empty())
       {
         return request::make_bad_request_response("Failed to get Discord user data", req);
@@ -749,7 +742,7 @@ public:
         avatar = "-1";
       }
 
-      int user_id = select_user_id_by_discord_id(discord_id, false);
+      int user_id = select_user_id_by_discord_id(discord_id);
       if (user_id != -1)
       {
         return request::make_bad_request_response("User already linked with Discord", req);
@@ -760,26 +753,26 @@ public:
       {
         return request::make_unauthorized_response("Session ID not found", req);
       }
-      if (!request::validate_session(std::string(session_id), false))
+      if (!request::validate_session(std::string(session_id)))
       {
         return request::make_unauthorized_response("Invalid session ID", req);
       }
 
       // Get the account of the person trying to link to discord
-      user_id = request::get_user_id_from_session(std::string(session_id), false);
+      user_id = request::get_user_id_from_session(std::string(session_id));
       if (user_id == -1)
       {
         return request::make_bad_request_response("User not found", req);
       }
 
-      validate_discord_status(user_id, true, false);
+      validate_discord_status(user_id, true);
 
       try
       {
         http::response<http::string_body> guild_response = verify_guild_membership(req, access_token);
         if (guild_response.result() != http::status::ok)
         {
-          validate_discord_status(user_id, false, false);
+          validate_discord_status(user_id, false);
         }
       }
       catch (const std::exception &e)
@@ -794,7 +787,7 @@ public:
         http::response<http::string_body> role_response = verify_user_guild_roles(req, user_id, access_token);
         if (role_response.result() != http::status::ok)
         {
-          validate_discord_status(user_id, false, false);
+          validate_discord_status(user_id, false);
         }
       }
       catch (const std::exception &e)
@@ -803,7 +796,7 @@ public:
         return request::make_bad_request_response("Failed to verify user roles", req);
       }
 
-      if (!link_user_to_discord(user_id, discord_id, true))
+      if (!link_user_to_discord(user_id, discord_id))
       {
         return request::make_bad_request_response("Failed to link user with Discord", req);
       }
@@ -812,12 +805,14 @@ public:
     }
     else if (req.method() == http::verb::delete_)
     {
+      Logger::instance().debug("DELETE Discord unlink requested");
       /**
        * Unlink account from Discord.
        */
     }
     else
     {
+      Logger::instance().info("Invalid method for Discord endpoint");
       return request::make_bad_request_response("Invalid method", req);
     }
   }

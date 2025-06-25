@@ -1,18 +1,18 @@
 #include "session.hpp"
+#include "../utils.hpp"
 
 namespace session
 {
   /**
    * Generate a session ID for a user. This function uses OpenSSL to generate a random 128-bit session ID.
-   * @param verbose Whether to print messages to stdout.
    * @return Session ID as a string.
    */
-  std::string generate_session_id(bool verbose)
+  std::string generate_session_id()
   {
     unsigned char buffer[16];
     if (RAND_bytes(buffer, sizeof(buffer)) != 1)
     {
-      verbose &&std::cout << "Failed to generate session ID" << std::endl;
+      utils::Logger::instance().error("Failed to generate session ID");
     }
 
     std::stringstream session_id;
@@ -53,10 +53,9 @@ namespace session
    * @param username Username of the user to set the session ID for.
    * @param duration Duration of the session in seconds.
    * @param ip_address IP address of the user.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the session ID was set, false otherwise.
    */
-  bool set_session_id(std::string signed_session_id, int user_id, int duration, std::string ip_address, bool verbose)
+  bool set_session_id(std::string signed_session_id, int user_id, int duration, std::string ip_address)
   {
     try
     {
@@ -81,19 +80,19 @@ namespace session
       }
       catch (const sw::redis::Error &e)
       {
-        verbose &&std::cout << "Failed to set session hash in Redis: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Failed to set session hash in Redis: ") + e.what());
         return false;
       }
 
       if (!redis.expire(key, duration))
       {
-        verbose &&std::cout << "Failed to set session expiration in Redis" << std::endl;
+        utils::Logger::instance().error("Failed to set session expiration in Redis");
         return false;
       }
 
       if (!redis.sadd("user:" + std::to_string(user_id) + ":sessions", signed_session_id))
       {
-        verbose &&std::cout << "Failed to add session ID to user sessions set in Redis" << std::endl;
+        utils::Logger::instance().error("Failed to add session ID to user sessions set in Redis");
         return false;
       }
 
@@ -101,12 +100,12 @@ namespace session
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error setting session ID: " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("Error setting session ID: ") + e.what());
       return false;
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while setting session ID" << std::endl;
+      utils::Logger::instance().error("Unknown error while setting session ID");
       return false;
     }
   }

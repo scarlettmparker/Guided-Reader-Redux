@@ -1,6 +1,8 @@
 #include "api.hpp"
 
 using namespace postgres;
+using namespace utils;
+
 class TitlesHandler : public RequestHandler
 {
 private:
@@ -15,11 +17,11 @@ private:
    * @param page Page number to fetch.
    * @param page_size Number of items to fetch.
    * @param sort Sort order to use.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON of title data.
    */
-  nlohmann::json select_title_data(int page, int page_size, int sort, bool verbose)
+  nlohmann::json select_title_data(int page, int page_size, int sort)
   {
+    Logger::instance().debug("Selecting title data for page=" + std::to_string(page) + ", page_size=" + std::to_string(page_size) + ", sort=" + std::to_string(sort));
     std::string sort_query;
     nlohmann::json title_info = nlohmann::json::array();
 
@@ -38,7 +40,7 @@ private:
 
       if (cache_result)
       {
-        verbose &&std::cout << "Cache hit for " << cache_key << std::endl;
+        Logger::instance().debug("Cache hit for " + cache_key);
         return nlohmann::json::parse(*cache_result);
       }
 
@@ -52,13 +54,13 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
 
       if (r.empty() || r[0][0].is_null())
       {
-        verbose &&std::cout << "No titles found" << std::endl;
+        Logger::instance().debug("No titles found");
         return title_info;
       }
 
@@ -67,11 +69,11 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return title_info;
   }
@@ -88,12 +90,14 @@ public:
 
   http::response<http::string_body> handle_request(const http::request<http::string_body> &req, const std::string &ip_address)
   {
+    Logger::instance().info("Titles endpoint called: " + std::string(req.method_string()));
     if (middleware::rate_limited(ip_address, "/titles", 50))
     {
       return request::make_too_many_requests_response("Too many requests", req);
     }
     if (req.method() == http::verb::get)
     {
+      Logger::instance().debug("GET titles requested");
       /**
        * GET text titles
        */
@@ -127,16 +131,19 @@ public:
         return request::make_bad_request_response("Number out of range for page | page_size | sort", req);
       }
 
-      nlohmann::json title_info = select_title_data(page, page_size, sort, false);
+      nlohmann::json title_info = select_title_data(page, page_size, sort);
       if (title_info.empty())
       {
+        Logger::instance().info("No titles found for page=" + std::to_string(page));
         return request::make_bad_request_response("No titles found", req);
       }
+      Logger::instance().info("Titles data returned for page=" + std::to_string(page));
 
       return request::make_json_request_response(title_info, req);
     }
     else
     {
+      Logger::instance().info("Invalid method for titles endpoint");
       return request::make_bad_request_response("Invalid request method", req);
     }
   }

@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include "utils.hpp"
 #include "auth/email.hpp"
 #include "db/redis.hpp"
 #include "db/postgres.hpp"
@@ -12,6 +13,8 @@ int main()
     unsigned short port = static_cast<unsigned short>(READER_SERVER_PORT);
 
     std::cout << "Starting server on " << address << ":" << port << std::endl;
+    utils::Logger::instance().initialize_from_env();
+    utils::Logger::instance().info("Logger initialized from environment");
 
     net::io_context ioc;
     std::vector<std::thread> threads;
@@ -42,11 +45,11 @@ int main()
 
     for (std::size_t i = 0; i < std::thread::hardware_concurrency(); ++i)
     {
-      threads.emplace_back([& ioc]
+      threads.emplace_back([&ioc]
                            { ioc.run(); });
     }
 
-    for (auto & t : threads)
+    for (auto &t : threads)
     {
       t.join();
     }

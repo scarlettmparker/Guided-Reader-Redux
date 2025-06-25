@@ -26,8 +26,8 @@ namespace email
     std::string username;
   };
 
-  bool validate_recovery_code(int user_id, const std::string &recovery_code, bool verbose);
-  bool insert_recovery_code(int user_id, const std::string &recovery_code, bool verbose);
+  bool validate_recovery_code(int user_id, const std::string &recovery_code);
+  bool insert_recovery_code(int user_id, const std::string &recovery_code);
   std::string generate_recovery_code();
   std::string get_rfc822_date();
   std::string get_access_token();

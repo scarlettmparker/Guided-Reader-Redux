@@ -1,6 +1,8 @@
 #include "api.hpp"
 
 using namespace postgres;
+using namespace utils;
+
 class ProfileHandler : public RequestHandler
 {
 private:
@@ -13,11 +15,11 @@ private:
    * that are stored in the "User" table, and not seen in the navbar (e.g. proficiency levels).
    *
    * @param user_id ID of the user to select profile data from.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON of profile data.
    */
-  nlohmann::json select_profile_data(int user_id, bool verbose)
+  nlohmann::json select_profile_data(int user_id)
   {
+    Logger::instance().debug("Selecting profile data for user_id=" + std::to_string(user_id));
     nlohmann::json profile_info = nlohmann::json::array();
 
     try
@@ -34,13 +36,13 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
 
       if (r.empty())
       {
-        verbose &&std::cout << "Profile with ID " << user_id << " not found" << std::endl;
+        utils::Logger::instance().debug("Profile with ID " + std::to_string(user_id) + " not found");
         return profile_info;
       }
 
@@ -48,11 +50,11 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return profile_info;
   }
@@ -69,12 +71,14 @@ public:
 
   http::response<http::string_body> handle_request(const http::request<http::string_body> &req, const std::string &ip_address)
   {
+    Logger::instance().info("Profile endpoint called: " + std::string(req.method_string()));
     if (middleware::rate_limited(ip_address, "/profile", 20))
     {
       return request::make_too_many_requests_response("Too many requests", req);
     }
     if (req.method() == http::verb::get)
     {
+      Logger::instance().debug("GET profile requested");
       /**
        * GET profile information.
        */
@@ -98,16 +102,19 @@ public:
         return request::make_bad_request_response("Number out of range for user_id", req);
       }
 
-      nlohmann::json profile_info = select_profile_data(user_id, false);
+      nlohmann::json profile_info = select_profile_data(user_id);
       if (profile_info.empty())
       {
+        Logger::instance().info("No profile found for user_id=" + std::to_string(user_id));
         return request::make_bad_request_response("No profile found", req);
       }
+      Logger::instance().info("Profile data returned for user_id=" + std::to_string(user_id));
 
       return request::make_json_request_response(profile_info, req);
     }
     else
     {
+      Logger::instance().info("Invalid method for profile endpoint");
       return request::make_bad_request_response("Invalid request method", req);
     }
   }

@@ -15,9 +15,9 @@ namespace http = boost::beast::http;
 
 namespace session
 {
-  std::string generate_session_id(bool verbose);
+  std::string generate_session_id();
   http::response<http::string_body> set_session_cookie(const std::string &signed_session_id);
-  bool set_session_id(std::string signed_session_id, int user_id, int duration, std::string ip_address, bool verbose);
+  bool set_session_id(std::string signed_session_id, int user_id, int duration, std::string ip_address);
   std::string bytes_to_hex(const std::string &bytes);
   std::string generate_hmac(const std::string &data, const std::string &key);
 }

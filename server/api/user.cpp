@@ -1,11 +1,12 @@
+
+#include "../auth/session.hpp"
 #include "api.hpp"
 #include "bcrypt.h"
-#include "../auth/session.hpp"
-
 #include <openssl/rand.h>
 #include <ctime>
 
 using namespace postgres;
+using namespace utils;
 
 class UserHandler : public RequestHandler
 {
@@ -61,10 +62,9 @@ private:
   /**
    * Select the ID of a user by username.
    * @param username Username of the user to select.
-   * @param verbose Whether to print messages to stdout.
    * @return ID of the user if found, -1 otherwise.
    */
-  int select_user_id(std::string username, bool verbose)
+  int select_user_id(std::string username)
   {
     try
     {
@@ -77,24 +77,23 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.empty())
       {
-        verbose &&std::cout << "User with username " << username << " not found" << std::endl;
+        Logger::instance().debug("User with username " + username + " not found");
         return -1;
       }
       return r[0][0].as<int>();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return -1;
   }
@@ -103,44 +102,38 @@ private:
    * Select the email of a user by email. Used to validate if an email is taken or not.
    *
    * @param email Email of the user to select.
-   * @param verbose Whether to print messages to stdout.
    * @return Email of the user if found, empty string otherwise.
    */
-  std::string select_email(std::string email, bool verbose)
+  std::string select_email(std::string email)
   {
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
       pqxx::result r = txn.exec_prepared(
           "select_email", email);
-
       try
       {
         txn.commit();
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error committing transaction: ") + e.what());
         throw;
       }
-
       if (r.empty())
       {
-        verbose &&std::cout << "Email " << email << " not found" << std::endl;
+        Logger::instance().debug("Email " + email + " not found");
         return "";
       }
-
-      return r[0][0].c_str();
+      return r[0][0].as<std::string>();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
-      return "";
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
-      return "";
+      utils::Logger::instance().error("Unknown error while executing query");
     }
     return "";
   }
@@ -149,11 +142,11 @@ private:
    * Select user data by ID. This returns the username, Discord ID, avatar, and nickname of the user.
    *
    * @param id ID of the user to select.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON of user data.
    */
-  nlohmann::json select_user_data_by_id(int id, bool verbose)
+  nlohmann::json select_user_data_by_id(int id)
   {
+    Logger::instance().debug("Selecting user data for id=" + std::to_string(id));
     nlohmann::json user_data = nlohmann::json::array();
 
     try
@@ -168,13 +161,11 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
       if (r.empty())
       {
-        verbose &&std::cout << "User with ID " << id << " not found" << std::endl;
         return user_data;
       }
 
@@ -182,11 +173,10 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return user_data;
   }
@@ -194,10 +184,9 @@ private:
   /**
    * Select a user by ID.
    * @param id ID of the user to select.
-   * @param verbose Whether to print messages to stdout.
    * @return Username of the user if found, NULL otherwise.
    */
-  std::string select_username_by_id(int id, bool verbose)
+  std::string select_username_by_id(int id)
   {
     try
     {
@@ -210,25 +199,21 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
       if (r.empty())
       {
-        verbose &&std::cout << "User with ID " << id << " not found" << std::endl;
         return "";
       }
       return r[0][0].c_str();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
       return "";
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return "";
     }
     return "";
@@ -237,10 +222,9 @@ private:
   /**
    * Select the password of a user by username.
    * @param username Username of the user to select.
-   * @param verbose Whether to print messages to stdout.
    * @return (Hashed) password of the user if found, NULL otherwise.
    */
-  std::string select_password(std::string username, bool verbose)
+  std::string select_password(std::string username)
   {
     try
     {
@@ -253,25 +237,21 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
       if (r.empty())
       {
-        verbose &&std::cout << "User with username " << username << " not found" << std::endl;
         return "";
       }
       return r[0][0].c_str();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
       return "";
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return "";
     }
     return "";
@@ -283,11 +263,11 @@ private:
    *
    * @param username Username of the user to register.
    * @param hashed_password Hashed password of the user to register.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the user was registered, false otherwise.
    */
-  bool register_user(std::string username, std::string email, std::string hashed_password, bool verbose)
+  bool register_user(std::string username, std::string email, std::string hashed_password)
   {
+    Logger::instance().debug("Registering user: " + username);
     try
     {
       int current_time = static_cast<int>(std::time(0));
@@ -301,7 +281,6 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
@@ -309,12 +288,11 @@ private:
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
       return false;
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
       return false;
     }
   }
@@ -325,12 +303,12 @@ private:
    *
    * @param username Username of the user to authenticate.
    * @param password Password of the user to authenticate.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the user is authenticated, false otherwise.
    */
   bool login(std::string username, std::string password)
   {
-    std::string stored_password = select_password(username, false);
+    Logger::instance().debug("Login attempt for user: " + username);
+    std::string stored_password = select_password(username);
     if (stored_password.empty())
     {
       return false;
@@ -350,12 +328,14 @@ public:
 
   http::response<http::string_body> handle_request(const http::request<http::string_body> &req, const std::string &ip_address)
   {
+    Logger::instance().info("User endpoint called: " + std::string(req.method_string()));
     if (middleware::rate_limited(ip_address, "/user", 20))
     {
       return request::make_too_many_requests_response("Too many requests", req);
     }
     if (req.method() == http::verb::get)
     {
+      Logger::instance().debug("GET user info requested");
       /**
        * GET user information.
        */
@@ -365,27 +345,30 @@ public:
       {
         return request::make_unauthorized_response("Session ID not found", req);
       }
-      if (!request::validate_session(std::string(session_id), false))
+      if (!request::validate_session(std::string(session_id)))
       {
         return request::make_unauthorized_response("Invalid session ID", req);
       }
 
-      int user_id = request::get_user_id_from_session(std::string(session_id), false);
+      int user_id = request::get_user_id_from_session(std::string(session_id));
       if (user_id == -1)
       {
         return request::make_bad_request_response("User not found", req);
       }
 
-      nlohmann::json user_data = select_user_data_by_id(user_id, false);
+      nlohmann::json user_data = select_user_data_by_id(user_id);
       if (user_data.empty())
       {
+        Logger::instance().info("User not found for session");
         return request::make_bad_request_response("User not found", req);
       }
 
+      Logger::instance().info("User data returned for user_id=" + std::to_string(user_id));
       return request::make_json_request_response(user_data, req);
     }
     else if (req.method() == http::verb::post)
     {
+      Logger::instance().debug("POST login requested");
       /**
        * Login user.
        */
@@ -415,12 +398,14 @@ public:
 
       if (!login(username, password) || password.empty())
       {
+        Logger::instance().info("Invalid username or password for user: " + username);
         return request::make_unauthorized_response("Invalid username or password", req);
       }
 
-      std::string session_id = session::generate_session_id(false);
+      Logger::instance().info("User logged in: " + username);
+      std::string session_id = session::generate_session_id();
       std::string signed_session_id = session_id + "." + session::generate_hmac(session_id, READER_SECRET_KEY);
-      int user_id = select_user_id(username, false);
+      int user_id = select_user_id(username);
 
       if (user_id == -1)
       {
@@ -428,7 +413,7 @@ public:
       }
 
       int expires_in = std::stoi(READER_SESSION_EXPIRE_LENGTH);
-      if (!session::set_session_id(signed_session_id, user_id, expires_in, ip_address, false))
+      if (!session::set_session_id(signed_session_id, user_id, expires_in, ip_address))
       {
         return request::make_bad_request_response("Failed to set session ID", req);
       }
@@ -437,6 +422,7 @@ public:
     }
     else if (req.method() == http::verb::put)
     {
+      Logger::instance().debug("PUT register requested");
       /**
        * PUT new user.
        */
@@ -478,11 +464,11 @@ public:
         return request::make_bad_request_response("Password too short", req);
       }
 
-      if (select_user_id(username, false) != -1)
+      if (select_user_id(username) != -1)
       {
         return request::make_bad_request_response("Username taken", req);
       }
-      if (!select_email(email, false).empty())
+      if (!select_email(email).empty())
       {
         return request::make_bad_request_response("Email taken", req);
       }
@@ -493,27 +479,31 @@ public:
         return request::make_bad_request_response("Failed to hash password", req);
       }
 
-      if (!register_user(username, email, hashed_password, false))
+      if (!register_user(username, email, hashed_password))
       {
+        Logger::instance().error("Failed to register user: " + username);
         return request::make_bad_request_response("Failed to register user", req);
       }
-
+      Logger::instance().info("User registered: " + username);
       return request::make_ok_request_response("User registered", req);
     }
     else if (req.method() == http::verb::patch)
     {
+      Logger::instance().debug("PATCH user update requested");
       /**
        * Update user information.
        */
     }
     else if (req.method() == http::verb::delete_)
     {
+      Logger::instance().debug("DELETE user requested");
       /**
        * DELETE user.
        */
     }
     else
     {
+      Logger::instance().info("Invalid method for user endpoint");
       return request::make_bad_request_response("Invalid request method", req);
     }
   }

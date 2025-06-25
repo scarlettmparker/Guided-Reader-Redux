@@ -23,7 +23,7 @@ namespace middleware
 
   /* bool check_permissions(request::UserPermissions user_permissions, std::string * required_permissions, int num_permissions); */
   bool rate_limited(const std::string &ip_address, const std::string &endpoint, float max_requests_per_second);
-  bool user_accepted_policy(const int user_id, bool verbose);
+  bool user_accepted_policy(const int user_id);
 }
 
 namespace std

@@ -1,6 +1,9 @@
 #include "api.hpp"
+#include "../utils.hpp"
 
 using namespace postgres;
+using namespace utils;
+
 class AnnotationHandler : public RequestHandler
 {
 private:
@@ -20,7 +23,6 @@ private:
    * @param text_id ID of the text to select annotations from.
    * @param start Start position of the annotation.
    * @param end End position of the annotation.
-   * @param verbose Whether to print messages to stdout.
    * @return JSON of annotation data.
    *
    * @example
@@ -43,43 +45,37 @@ private:
    * Multiple annotations may be returned if there are multiple
    * annotations within the given range.
    */
-  nlohmann::json select_annotation_data(int text_id, int start, int end, bool verbose)
+  nlohmann::json select_annotation_data(int text_id, int start, int end)
   {
     nlohmann::json annotation_info = nlohmann::json::array();
-
+    Logger::instance().debug("Selecting annotation data for text_id=" + std::to_string(text_id) + ", start=" + std::to_string(start) + ", end=" + std::to_string(end));
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
-
       pqxx::result r = txn.exec_prepared(
           "select_annotation_data",
           std::to_string(text_id), std::to_string(start), std::to_string(end));
-
       try
       {
         txn.commit();
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
-
       if (r.empty() || r[0][0].is_null())
       {
-        verbose &&std::cout << "No annotations found" << std::endl;
+        Logger::instance().info("No annotations found for text_id=" + std::to_string(text_id));
         return annotation_info;
       }
-
       annotation_info = nlohmann::json::parse(r[0][0].as<std::string>());
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return annotation_info;
   }
@@ -91,10 +87,9 @@ private:
    * may be trying to edit an annotation that doesn't belong to them.
    *
    * @param annotation_id ID of the annotation to select the author ID from.
-   * @param verbose Whether to print messages to stdout.
    * @return Author ID of the annotation if found, -1 otherwise.
    */
-  int select_author_id_by_annotation(int annotation_id, bool verbose)
+  int select_author_id_by_annotation(int annotation_id)
   {
     try
     {
@@ -107,24 +102,19 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
-
       if (r.empty())
       {
-        verbose &&std::cout << "Annotation with ID " << annotation_id << " not found" << std::endl;
         return -1;
       }
       return r[0][0].as<int>();
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return -1;
   }
@@ -134,11 +124,11 @@ private:
    *
    * @param annotation_id ID of the annotation to update.
    * @param description New description of the annotation.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the annotation was updated, false otherwise.
    */
-  bool update_annotation(int annotation_id, std::string description, bool verbose)
+  bool update_annotation(int annotation_id, std::string description)
   {
+    Logger::instance().debug("Updating annotation id=" + std::to_string(annotation_id));
     try
     {
       pqxx::work &txn = request::begin_transaction(pool);
@@ -151,24 +141,21 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
-
       if (r.affected_rows() == 0)
       {
-        verbose &&std::cout << "Annotation with ID " << annotation_id << " not found" << std::endl;
+        Logger::instance().info("Annotation with ID " + std::to_string(annotation_id) + " not found");
         return false;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return false;
   }
@@ -179,10 +166,9 @@ private:
    * annotation that overlaps with an existing annotation, it will be rejected.
    *
    * @param text_id ID of the text to select annotation ranges from.
-   * @param verbose Whether to print messages to stdout.
    * @return Array of integers representing the start and end positions of annotations.
    */
-  RangeOccupancies select_annotation_ranges(int text_id, bool verbose)
+  RangeOccupancies select_annotation_ranges(int text_id)
   {
     try
     {
@@ -196,15 +182,12 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
-
       if (r.empty())
       {
         return {nullptr, 0};
       }
-
       int *ranges = new int[r.size() * 2];
       for (int i = 0; i < r.size(); i++)
       {
@@ -215,11 +198,9 @@ private:
     }
     catch (const std::exception &e)
     {
-      std::cerr << "Error executing query: " << e.what() << std::endl;
     }
     catch (...)
     {
-      std::cerr << "Unknown error while executing query" << std::endl;
     }
   }
 
@@ -256,11 +237,11 @@ private:
    * @param start Start position of the annotation.
    * @param end End position of the annotation.
    * @param description Description of the annotation.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the annotation was inserted, false otherwise.
    */
-  bool insert_annotation(int text_id, int user_id, int start, int end, std::string description, bool verbose)
+  bool insert_annotation(int text_id, int user_id, int start, int end, std::string description)
   {
+    Logger::instance().debug("Inserting annotation for text_id=" + std::to_string(text_id) + ", user_id=" + std::to_string(user_id));
     std::time_t created_at = std::time(nullptr);
     try
     {
@@ -274,24 +255,21 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
-
       if (r.affected_rows() == 0)
       {
-        verbose &&std::cout << "Failed to insert annotation" << std::endl;
+        Logger::instance().info("Failed to insert annotation for text_id=" + std::to_string(text_id));
         return false;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      Logger::instance().error(std::string("Error executing query: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return false;
   }
@@ -300,10 +278,9 @@ private:
    * Delete an annotation by its ID.
    *
    * @param annotation_id ID of the annotation to delete.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the annotation was deleted, false otherwise.
    */
-  bool delete_annotation(int annotation_id, bool verbose)
+  bool delete_annotation(int annotation_id)
   {
     try
     {
@@ -317,24 +294,19 @@ private:
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
-
       if (r.affected_rows() == 0)
       {
-        verbose &&std::cout << "Annotation with ID " << annotation_id << " not found" << std::endl;
         return false;
       }
       return true;
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
     }
     return false;
   }
@@ -351,8 +323,7 @@ private:
   http::response<http::string_body> validate_annotation_author(
       const http::request<http::string_body> &req, const std::string_view session_id, int annotation_id, int author_id)
   {
-    // Validate annotation author
-    int real_author_id = select_author_id_by_annotation(annotation_id, false);
+    int real_author_id = select_author_id_by_annotation(annotation_id);
     if (real_author_id == -1)
     {
       return request::make_bad_request_response("Annotation not found", req);
@@ -361,18 +332,15 @@ private:
     {
       return request::make_bad_request_response("Author ID mismatch. This incident has been reported", req);
     }
-
-    // Validate session and user
     if (session_id.empty())
     {
       return request::make_unauthorized_response("Session ID not found", req);
     }
-    if (!request::validate_session(std::string(session_id), false))
+    if (!request::validate_session(std::string(session_id)))
     {
       return request::make_unauthorized_response("Invalid session ID", req);
     }
-
-    int user_id = request::get_user_id_from_session(std::string(session_id), false);
+    int user_id = request::get_user_id_from_session(std::string(session_id));
     if (user_id == -1)
     {
       return request::make_bad_request_response("User not found", req);
@@ -381,11 +349,10 @@ private:
     {
       return request::make_bad_request_response("Author ID mismatch. This incident has been reported", req);
     }
-    if (!middleware::user_accepted_policy(user_id, false))
+    if (!middleware::user_accepted_policy(user_id))
     {
       return request::make_unauthorized_response("User has not accepted the privacy policy", req);
     }
-
     return http::response<http::string_body>{http::status::ok, req.version()};
   }
 
@@ -401,12 +368,14 @@ public:
 
   http::response<http::string_body> handle_request(const http::request<http::string_body> &req, const std::string &ip_address)
   {
+    Logger::instance().info("Annotation endpoint called: " + std::string(req.method_string()));
     if (middleware::rate_limited(ip_address, "/annotation", 10))
     {
       return request::make_too_many_requests_response("Too many requests", req);
     }
     if (req.method() == http::verb::get)
     {
+      Logger::instance().debug("GET annotation details requested");
       /**
        * GET annotation details.
        */
@@ -435,7 +404,7 @@ public:
         return request::make_bad_request_response("Number out of range for text_id | start | end", req);
       }
 
-      nlohmann::json annotation_info = select_annotation_data(text_id, start, end, false);
+      nlohmann::json annotation_info = select_annotation_data(text_id, start, end);
       if (annotation_info.empty())
       {
         return request::make_bad_request_response("No annotations found", req);
@@ -445,6 +414,7 @@ public:
     }
     else if (req.method() == http::verb::patch)
     {
+      Logger::instance().debug("PATCH annotation requested");
       /**
        * UPDATE annotation details.
        */
@@ -501,7 +471,7 @@ public:
         return request::make_bad_request_response("Description too short. Min 15 characters", req);
       }
 
-      if (!update_annotation(annotation_id, description, false))
+      if (!update_annotation(annotation_id, description))
       {
         return request::make_bad_request_response("Failed to update annotation", req);
       }
@@ -510,6 +480,7 @@ public:
     }
     else if (req.method() == http::verb::put)
     {
+      Logger::instance().debug("PUT annotation requested");
       /**
        * PUT a new annotation.
        */
@@ -560,13 +531,13 @@ public:
       {
         return request::make_unauthorized_response("Session ID not found", req);
       }
-      if (!request::validate_session(std::string(session_id), false))
+      if (!request::validate_session(std::string(session_id)))
       {
         return request::make_unauthorized_response("Invalid session ID", req);
       }
 
       // Check if user is who they say they are, and has accepted policy
-      int real_user_id = request::get_user_id_from_session(std::string(session_id), false);
+      int real_user_id = request::get_user_id_from_session(std::string(session_id));
       if (real_user_id == -1)
       {
         return request::make_bad_request_response("User not found", req);
@@ -575,12 +546,12 @@ public:
       {
         return request::make_bad_request_response("User ID mismatch. This incident has been reported", req);
       }
-      if (!middleware::user_accepted_policy(real_user_id, false))
+      if (!middleware::user_accepted_policy(real_user_id))
       {
         return request::make_unauthorized_response("User has not accepted the privacy policy", req);
       }
 
-      RangeOccupancies ranges = select_annotation_ranges(text_id, false);
+      RangeOccupancies ranges = select_annotation_ranges(text_id);
       if (!check_valid_ranges(ranges.ranges, ranges.size, start, end))
       {
         return request::make_bad_request_response("Annotation overlaps with existing annotation", req);
@@ -602,7 +573,7 @@ public:
         return request::make_bad_request_response("Description too short. Min 15 characters", req);
       }
 
-      if (!insert_annotation(text_id, user_id, start, end, description, false))
+      if (!insert_annotation(text_id, user_id, start, end, description))
       {
         return request::make_bad_request_response("Failed to insert annotation", req);
       }
@@ -611,6 +582,7 @@ public:
     }
     else if (req.method() == http::verb::delete_)
     {
+      Logger::instance().debug("DELETE annotation requested");
       /**
        * DELETE annotation.
        */
@@ -652,7 +624,7 @@ public:
         return validation_response;
       }
 
-      if (!delete_annotation(annotation_id, false))
+      if (!delete_annotation(annotation_id))
       {
         return request::make_bad_request_response("Failed to delete annotation", req);
       }
@@ -661,6 +633,7 @@ public:
     }
     else
     {
+      Logger::instance().info("Invalid method for annotation endpoint");
       return request::make_bad_request_response("Invalid method", req);
     }
   }

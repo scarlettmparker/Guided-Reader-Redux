@@ -1,41 +1,11 @@
 #include "middleware.hpp"
+#include "../utils.hpp"
 
 using namespace postgres;
 namespace middleware
 {
   std::mutex rate_limit_mutex;
   std::unordered_map<CacheKey, RateLimitData> rate_limit_cache;
-
-  /**
-   * Check if a user has the required permissions.
-   * This function checks if the user has one of the required permissions to access a resource.
-   *
-   * @param user_permissions Permissions the user has.
-   * @param required_permissions Permissions required to access the resource.
-   * @param num_permissions Number of permissions required.
-   * @return true if the user has the required permissions, false otherwise.
-   */
-  /* int check_permissions(request::UserPermissions permissions, std::string * required_permissions, int num_permissions)
-  {
-    std::unordered_set<std::string> permission_set;
-    for (int i = 0; i < permissions.permission_count; i++)
-    {
-      if (permissions.permissions[i].permission_name == "*")
-      {
-        return true;
-      }
-      permission_set.insert(permissions.permissions[i].permission_name);
-    }
-
-    for (int i = 0; i < num_permissions; i++)
-    {
-      if (permission_set.find(required_permissions[i]) != permission_set.end())
-      {
-        return true;
-      }
-    }
-    return true;
-  } */
 
   /**
    * Check if a user is being rate limited.
@@ -86,10 +56,9 @@ namespace middleware
    * usage of certain API endpoints until the user has accepted the policy.
    *
    * @param user_id ID of the user to check.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the user has accepted the policy, false otherwise.
    */
-  bool user_accepted_policy(const int user_id, bool verbose)
+  bool user_accepted_policy(const int user_id)
   {
     try
     {
@@ -106,12 +75,12 @@ namespace middleware
       }
       catch (const std::exception &e)
       {
-        verbose &&std::cout << "Error committing transaction: " << e.what() << std::endl;
         throw;
       }
 
       if (r.empty())
       {
+        utils::Logger::instance().debug("Policy not accepted for user_id=" + std::to_string(user_id));
         return false;
       }
       if (r[0][0].as<bool>())
@@ -122,11 +91,11 @@ namespace middleware
     }
     catch (const std::exception &e)
     {
-      verbose &&std::cout << "Error executing query: " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("Error checking policy acceptance: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while executing query" << std::endl;
+      utils::Logger::instance().error("Unknown error while checking policy acceptance");
     }
     return false;
   }

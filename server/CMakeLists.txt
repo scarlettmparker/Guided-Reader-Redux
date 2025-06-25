@@ -131,6 +131,7 @@ add_executable(
   ReaderServer
   main.cpp
   server.cpp
+  utils.cpp
   auth/email.cpp
   auth/httpclient.cpp
   db/redis.cpp

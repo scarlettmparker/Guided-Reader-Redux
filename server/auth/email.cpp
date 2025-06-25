@@ -1,4 +1,5 @@
 #include "email.hpp"
+#include "../utils.hpp"
 
 namespace email
 {
@@ -7,10 +8,9 @@ namespace email
    *
    * @param user_id ID of the user to validate the recovery code for.
    * @param recovery_code Recovery code to validate.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the recovery code is valid, false otherwise.
    */
-  bool validate_recovery_code(int user_id, const std::string &recovery_code, bool verbose)
+  bool validate_recovery_code(int user_id, const std::string &recovery_code)
   {
     auto &redis = Redis::get_instance();
     std::string key = "recovery:" + std::to_string(user_id);
@@ -19,13 +19,11 @@ namespace email
       auto val = redis.get(key);
       if (!val)
       {
-        verbose &&std::cout << "Recovery code for user " << user_id << " not found" << std::endl;
         return false;
       }
       auto ttl = redis.ttl(key);
       if (ttl < 0)
       {
-        verbose &&std::cout << "Recovery code for user " << user_id << " has expired" << std::endl;
         redis.del(key);
         return false;
       }
@@ -34,11 +32,9 @@ namespace email
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cout << "Error retrieving recovery code from Redis: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while retrieving recovery code from Redis" << std::endl;
     }
     return false;
   }
@@ -49,10 +45,9 @@ namespace email
    *
    * @param user_id ID of the user to insert the recovery code for.
    * @param recovery_code Recovery code to insert.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the recovery code was inserted, false otherwise.
    */
-  bool insert_recovery_code(int user_id, const std::string &recovery_code, bool verbose)
+  bool insert_recovery_code(int user_id, const std::string &recovery_code)
   {
     auto &redis = Redis::get_instance();
     std::string key = "recovery:" + std::to_string(user_id);
@@ -64,7 +59,6 @@ namespace email
       }
       if (!redis.expire(key, 300))
       {
-        verbose &&std::cout << "Failed to set expiration for recovery code" << std::endl;
         redis.del(key);
         return false;
       }
@@ -72,11 +66,9 @@ namespace email
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cout << "Error setting recovery code in Redis: " << e.what() << std::endl;
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while setting recovery code in Redis" << std::endl;
     }
     return false;
   }

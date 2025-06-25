@@ -1,6 +1,8 @@
 #include "request.hpp"
+#include "../utils.hpp"
 
 using namespace postgres;
+using utils::Logger;
 namespace request
 {
   thread_local std::shared_ptr<pqxx::connection> cached_connection;
@@ -58,39 +60,37 @@ namespace request
   /**
    * Get the user ID from a session ID.
    * @param session_id Session ID to get the user ID from.
-   * @param verbose Whether to print messages to stdout.
    * @return User ID from the session ID.
    */
-  int get_user_id_from_session(std::string session_id, bool verbose)
+  int get_user_id_from_session(std::string session_id)
   {
     auto &redis = Redis::get_instance();
     std::string key = "session:" + session_id;
-
     try
     {
       auto val = redis.hget(key, "user_id");
       if (!val)
       {
-        verbose &&std::cout << "Session ID " << session_id << " not found in Redis" << std::endl;
+        utils::Logger::instance().debug("Session ID " + session_id + " not found in Redis");
         return -1;
       }
       return std::stoi(*val);
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cout << "Error retrieving session data from Redis: " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("Error retrieving session data from Redis: ") + e.what());
     }
     catch (const std::invalid_argument &e)
     {
-      verbose &&std::cout << "Invalid user_id format in Redis: " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("Invalid user_id format in Redis: ") + e.what());
     }
     catch (const std::out_of_range &e)
     {
-      verbose &&std::cout << "User_id out of range in Redis: " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("User_id out of range in Redis: ") + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while retrieving session data from Redis" << std::endl;
+      utils::Logger::instance().error("Unknown error while retrieving session data from Redis");
     }
     return -1;
   }
@@ -116,22 +116,19 @@ namespace request
   /**
    * Invalidate a session ID. This removes the session ID from Redis.
    * @param session_id Session ID to invalidate.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the session was invalidated, false otherwise.
    */
-  bool invalidate_session(std::string session_id, bool verbose)
+  bool invalidate_session(std::string session_id)
   {
     auto &redis = Redis::get_instance();
     std::string key = "session:" + session_id;
-
     try
     {
       if (!redis.exists(key))
       {
-        verbose &&std::cout << "Session ID " << session_id << " not found" << std::endl;
+        utils::Logger::instance().debug("Session ID " + session_id + " not found");
         return false;
       }
-
       std::string user_id;
       try
       {
@@ -139,32 +136,29 @@ namespace request
       }
       catch (const sw::redis::Error &e)
       {
-        verbose &&std::cout << "Error getting user_id for session " << session_id << ": " << e.what() << std::endl;
+        utils::Logger::instance().error(std::string("Error getting user_id for session ") + session_id + ": " + e.what());
         return false;
       }
-
       std::string user_sessions_key = "user:" + user_id + ":sessions";
       if (!redis.srem(user_sessions_key, session_id))
       {
-        verbose &&std::cout << "Failed to remove session ID from user sessions set" << std::endl;
+        utils::Logger::instance().error("Failed to remove session ID from user sessions set");
         return false;
       }
-
       if (!redis.del(key))
       {
-        verbose &&std::cout << "Failed to delete session ID " << session_id << std::endl;
+        utils::Logger::instance().error("Failed to delete session ID " + session_id);
         return false;
       }
-
       return true;
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cout << "Error deleting session ID " << session_id << ": " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("Error deleting session ID ") + session_id + ": " + e.what());
     }
     catch (...)
     {
-      verbose &&std::cout << "Unknown error while deleting session ID " << session_id << std::endl;
+      utils::Logger::instance().error("Unknown error while deleting session ID " + session_id);
     }
     return false;
   }
@@ -175,37 +169,30 @@ namespace request
    *
    * @param session_id Session ID to check.
    * @param user_id User ID to check.
-   * @param verbose Whether to print messages to stdout.
    * @return true if the session is valid, false otherwise.
    */
-  bool validate_session(std::string signed_session_id, bool verbose)
+  bool validate_session(std::string signed_session_id)
   {
     std::string session_id, signature;
     if (!split_session_id(signed_session_id, session_id, signature))
     {
-      verbose &&std::cout << "Invalid session ID format" << std::endl;
+      utils::Logger::instance().error("Invalid session ID format");
       return false;
     }
-
-    // Check if the session ID is signed
     std::string secret_key = READER_SECRET_KEY;
     std::string expected_signature = session::generate_hmac(session_id, secret_key);
-
     if (signature != expected_signature)
     {
-      verbose &&std::cout << "Invalid session ID signature" << std::endl;
+      utils::Logger::instance().error("Invalid session ID signature");
       return false;
     }
-
     auto &redis = Redis::get_instance();
     std::string key = "session:" + signed_session_id;
-
     if (!redis.exists(key))
     {
-      verbose &&std::cout << "Session ID " << session_id << " not found" << std::endl;
+      utils::Logger::instance().error("Session ID " + session_id + " not found");
       return false;
     }
-
     std::map<std::string, std::string> session_data;
     try
     {
@@ -213,35 +200,29 @@ namespace request
     }
     catch (const sw::redis::Error &e)
     {
-      verbose &&std::cout << "Redis error: " << e.what() << std::endl;
+      utils::Logger::instance().error(std::string("Redis error: ") + e.what());
       return false;
     }
-
     if (session_data.empty())
     {
-      verbose &&std::cout << "Session ID " << session_id << " not found" << std::endl;
+      utils::Logger::instance().error("Session ID " + session_id + " not found");
       return false;
     }
-
     if (session_data.find("user_id") == session_data.end())
     {
-      verbose &&std::cout << "Session ID " << session_id << " missing user ID" << std::endl;
+      utils::Logger::instance().error("Session ID " + session_id + " missing user ID");
       return false;
     }
-
-    // Check if the session has expired
     if (session_data.find("expires_at") != session_data.end())
     {
       auto expires_at = std::stoll(session_data["expires_at"]);
       auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
       if (now > expires_at)
       {
-        verbose &&std::cout << "Session ID " << session_id << " has expired" << std::endl;
+        utils::Logger::instance().error("Session ID " + session_id + " has expired");
         return false;
       }
     }
-
     return true;
   }
 

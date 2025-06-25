@@ -6,6 +6,7 @@
 #include "../request/apikey.hpp"
 #include "../db/postgres.hpp"
 #include "../request/middleware.hpp"
+#include "../utils.hpp"
 #include "config.h"
 
 #include <boost/beast/http.hpp>
