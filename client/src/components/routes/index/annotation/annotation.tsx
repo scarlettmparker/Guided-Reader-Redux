@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardBody, CardFooter, CardHeader } from "~/components/card";
-import LikeButton from "~/components/like-button";
-import ProfilePicture from "~/components/profile-picture";
 import { unixToDate } from "~/utils/annotation";
 import { AnnotationResponse } from "~/types";
 import { marked } from "marked";
+import { useNavigate } from "react-router-dom";
+import LikeButton from "~/components/like-button";
+import ProfilePicture from "~/components/profile-picture";
 import styles from "./annotation.module.css";
 
 interface AnnotationProps {
@@ -14,6 +15,7 @@ interface AnnotationProps {
 const Annotation: React.FC<AnnotationProps> = (props) => {
   const { annotation } = props;
   const author = annotation.author;
+  const navigate = useNavigate();
   const [markedDescription, setMarkedDescription] = useState<string>("");
 
   useEffect(() => {
@@ -41,7 +43,10 @@ const Annotation: React.FC<AnnotationProps> = (props) => {
 
   return (
     <Card className={styles.annotation}>
-      <a href={`/user/${author.id}`} className={styles.annotation_link}>
+      <a
+        className={styles.annotation_link}
+        onClick={() => navigate(`/user/${author.id}`)}
+      >
         <CardHeader className={styles.annotation_header}>
           <ProfilePicture
             avatar={author.avatar}
