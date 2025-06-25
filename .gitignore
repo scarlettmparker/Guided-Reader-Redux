@@ -3,6 +3,7 @@ dist
 
 .gitattributes
 .env
+.env.production
 .vscode
 
 build/
